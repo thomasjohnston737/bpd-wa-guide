@@ -32,22 +32,46 @@ CRISIS = [
     ("Alcohol and Drug Support Line: country", "1800 198 024", "1800198024", "https://admhss.mhc.wa.gov.au/get-help/alcohol-and-drug-support-line"),
 ]
 
+ICONS = {
+    "phone": '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
+    "list": '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/>',
+    "steps": '<path d="M9 5h11M9 12h11M9 19h11"/><circle cx="4.5" cy="5" r="1.5"/><circle cx="4.5" cy="12" r="1.5"/><circle cx="4.5" cy="19" r="1.5"/>',
+    "info": '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+    "heart": '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>',
+    "search": '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+    "arrow": '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    "menu": '<path d="M4 7h16M4 12h16M4 17h16"/>',
+    "check": '<path d="M20 6 9 17l-5-5"/>',
+}
+def icon(name, cls="ic"):
+    return f'<svg class="{cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{ICONS[name]}</svg>'
+
 def crisis_box(full=False):
     items = CRISIS if full else CRISIS[:6]
     lis = "".join(
         f'<li><a class="num" href="tel:{t}">{e(n)}</a> <span>{e(l)}</span></li>' for l, n, t, _ in items)
-    more = "" if full else '<p class="more"><a href="/help-now/">More numbers, including Peel, country WA and alcohol &amp; drugs →</a></p>'
+    more = "" if full else f'<p class="more"><a href="/help-now/">More numbers, including Peel, country WA and alcohol &amp; drugs {icon("arrow","ic sm")}</a></p>'
     return f"""<aside class="crisis" aria-label="Crisis support">
-<h2>In danger or need to talk now?</h2>
+<div class="crisis-head"><span class="crisis-ic">{icon("phone")}</span><h2>In danger or need to talk now?</h2></div>
 <p>If you or someone else is in immediate danger, call <a class="num" href="tel:000">000</a>.</p>
 <ul>{lis}</ul>{more}
 </aside>"""
 
-def layout(path, title, desc, body, noindex=False, scripts=""):
+HEAD_RE = re.compile(r'^\s*<h1>(.*?)</h1>\s*(<p class="lede">.*?</p>)?', re.S)
+
+def layout(path, title, desc, body, noindex=False, scripts="", hero=None):
     nav = "".join(f'<li><a href="{h}"{" aria-current=page" if h == path else ""}>{e(t)}</a></li>' for h, t in NAV)
     robots = '<meta name="robots" content="noindex,nofollow">\n' if noindex else ""
+    if hero is None:  # lift the page's h1 + intro into a page header band (content unchanged)
+        m = HEAD_RE.match(body)
+        if m:
+            hero = f'<section class="pagehead"><div class="wrap"><h1>{m.group(1)}</h1>{m.group(2) or ""}</div></section>'
+            body = body[m.end():]
+        else:
+            hero = ""
+    flinks = "".join(f'<li><a href="{h}">{e(t)}</a></li>' for h, t in NAV)
     return f"""<!doctype html>
-<html lang="en-AU">
+<html lang="en-AU" class="no-js">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -58,24 +82,35 @@ def layout(path, title, desc, body, noindex=False, scripts=""):
 <meta property="og:description" content="{e(desc)}">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_AU">
-<meta name="theme-color" content="#2f5d62">
+<meta name="theme-color" content="#1f4f4b">
 <link rel="stylesheet" href="/assets/style.css">
+<script>document.documentElement.className='js'</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <div class="topbar"><div class="wrap">In immediate danger? Call <a href="tel:000">000</a>. Need to talk? Lifeline <a href="tel:131114">13 11 14</a>. <a href="/help-now/">All help lines</a></div></div>
-<header class="site"><div class="wrap">
-<a class="brand" href="/">WA BPD &amp; DBT <span>Service Guide</span></a>
-<nav aria-label="Main"><ul>{nav}</ul></nav>
+<header class="site"><div class="wrap bar">
+<a class="brand" href="/"><span class="mark" aria-hidden="true">{icon("heart")}</span><span class="bname">WA BPD &amp; DBT <span>Service Guide</span></span></a>
+<div class="hactions">
+<a class="btn-urgent" href="/help-now/" aria-label="Need help now? Crisis and support lines">{icon("phone","ic sm")}<span>Help now</span></a>
+<button type="button" class="nav-toggle" aria-expanded="false" aria-controls="mainnav">{icon("menu")}<span>Menu</span></button>
+</div>
+<nav id="mainnav" class="mainnav" aria-label="Main"><ul>{nav}</ul></nav>
 </div></header>
+{hero}
 <main id="main"><div class="wrap">
 {body}
 </div></main>
 <footer class="site"><div class="wrap">
+<div class="fgrid">
+<div><p class="fbrand"><span class="mark" aria-hidden="true">{icon("heart")}</span> {SITE_NAME}</p>
 <p><strong>Please read:</strong> this is an independent guide. It is <strong>not a health service</strong> and doesn't give medical advice, diagnosis or treatment recommendations. It is <strong>not affiliated with any provider</strong> listed, and no provider has paid to be here. Details change, so always check with the service before you go. The site is built and maintained with AI assistance and checked against each service's official page on the "last checked" date shown.</p>
-<p>Spotted something wrong or out of date? <a href="/about/#report">Report an error</a>.</p>
-<p>&copy; 2026 {SITE_NAME}. Crisis numbers last checked {CRISIS_CHECKED}.</p>
+<p>Spotted something wrong or out of date? <a href="/about/#report">Report an error</a>.</p></div>
+<nav aria-label="Footer"><ul class="flinks">{flinks}</ul></nav>
+</div>
+<p class="fsmall">&copy; 2026 {SITE_NAME}. Crisis numbers last checked {CRISIS_CHECKED}.</p>
 </div></footer>
+<script>(function(){{var b=document.querySelector('.nav-toggle'),n=document.getElementById('mainnav');if(!b||!n)return;b.addEventListener('click',function(){{var o=b.getAttribute('aria-expanded')==='true';b.setAttribute('aria-expanded',String(!o));n.classList.toggle('open',!o);}});document.addEventListener('keydown',function(ev){{if(ev.key==='Escape'&&n.classList.contains('open')){{n.classList.remove('open');b.setAttribute('aria-expanded','false');b.focus();}}}});}})();</script>
 {scripts}</body>
 </html>
 """
@@ -94,28 +129,53 @@ def fmt_date(d):
     return datetime.date.fromisoformat(d).strftime("%-d %b %Y")
 
 def home(n):
-    body = f"""
+    hero = f"""<section class="hero"><div class="wrap hero-in">
+<div>
+<p class="eyebrow">Independent · Western Australia · Free to use</p>
 <h1>Finding BPD and DBT support in Western Australia</h1>
 <p class="lede">A plain-English guide to services in WA for people living with borderline personality disorder (BPD), and for the people who care about them. It covers who each service is for, how to get referred, and the cost and wait where the service publishes them.</p>
-{crisis_box()}
-<h2>Who this is for</h2>
-<ul>
-<li>People in WA with a BPD diagnosis, or who think BPD might fit, looking for support.</li>
-<li>Partners, parents, family and friends trying to work out where to turn.</li>
-<li>Anyone trying to make sense of public, private, youth and community options in one place.</li>
+<div class="cta">
+<a class="btn btn-primary" href="/services/">{icon("search","ic sm")} Find a service</a>
+<a class="btn btn-soft" href="/help-now/">{icon("phone","ic sm")} Need help now?</a>
+</div>
+</div>
+<aside class="hero-side" aria-label="How this guide works">
+<h2>How this guide works</h2>
+<ul class="ticks">
+<li>{icon("check","ic tick")}{n} WA services you can filter</li>
+<li>{icon("check","ic tick")}Every listing links to its official page, with a last-checked date</li>
+<li>{icon("check","ic tick")}"Not published" when a service doesn't publish cost or wait</li>
+<li>{icon("check","ic tick")}No ads, paid listings or affiliate links</li>
 </ul>
+</aside>
+</div></section>"""
+    card = lambda href, ic, title, text: f'<a class="card" href="{href}"><span class="card-ic">{icon(ic)}</span><h3>{title}</h3><p>{text}</p><span class="card-go">{icon("arrow","ic sm")}</span></a>'
+    body = f"""
+{crisis_box()}
 <h2>Quick links</h2>
 <div class="cards">
-<div class="card"><h3><a href="/services/">WA BPD &amp; DBT services</a></h3><p>{n} services you can filter: public, private, community, youth, phone/online, alcohol &amp; other drugs, and families &amp; carers.</p></div>
-<div class="card"><h3><a href="/help-now/">Need help now?</a></h3><p>Crisis and support lines for WA, open 24/7 or into the evening.</p></div>
-<div class="card"><h3><a href="/getting-assessed/">Getting assessed in WA</a></h3><p>The usual steps from GP to psychologist or psychiatrist, what a mental health treatment plan is, and what Medicare covers.</p></div>
-<div class="card"><h3><a href="/about/">About this guide</a></h3><p>Who makes it, how it's checked, and how to report a mistake.</p></div>
+{card("/services/", "list", "WA BPD &amp; DBT services", f"{n} services you can filter: public, private, community, youth, phone/online, alcohol &amp; other drugs, and families &amp; carers.")}
+{card("/help-now/", "phone", "Need help now?", "Crisis and support lines for WA, open 24/7 or into the evening.")}
+{card("/getting-assessed/", "steps", "Getting assessed in WA", "The usual steps from GP to psychologist or psychiatrist, what a mental health treatment plan is, and what Medicare covers.")}
+{card("/about/", "info", "About this guide", "Who makes it, how it's checked, and how to report a mistake.")}
 </div>
+<div class="split">
+<section class="panel">
+<h2>Who this is for</h2>
+<ul class="ticks">
+<li>{icon("check","ic tick")}People in WA with a BPD diagnosis, or who think BPD might fit, looking for support.</li>
+<li>{icon("check","ic tick")}Partners, parents, family and friends trying to work out where to turn.</li>
+<li>{icon("check","ic tick")}Anyone trying to make sense of public, private, youth and community options in one place.</li>
+</ul>
+</section>
+<section class="panel">
 <h2>How the information is checked</h2>
 <p>Every service listing links to its official page, with the date we last checked it. If a service doesn't publish its cost or waitlist, we show <em>"Not published"</em> rather than guess. This guide doesn't recommend one service over another.</p>
+</section>
+</div>
 """
     write("index.html", layout("/", "WA BPD & DBT Service Guide: borderline personality disorder support in Western Australia",
-        "An independent, plain-English guide to BPD and DBT services in Western Australia: public, private, youth, community and carer support, with referral steps and official links.", body))
+        "An independent, plain-English guide to BPD and DBT services in Western Australia: public, private, youth, community and carer support, with referral steps and official links.", body, hero=hero))
 
 def help_now():
     rows = "".join(
@@ -149,7 +209,7 @@ def services():
     cards = []
     for d in data:
         tags = "".join(f'<span class="tag t-{t}">{e(TYPE_LABEL[t])}</span>' for t in d["types"])
-        badge = '<span class="badge">BPD / DBT specific</span>' if d["bpd"] else ""
+        badge = f'<span class="badge">{icon("check","ic xs")}BPD / DBT specific</span>' if d["bpd"] else ""
         phone = ""
         if d["phone"]:
             digits = "".join(c for c in d["phone"].split("·")[0] if c.isdigit())
@@ -157,7 +217,7 @@ def services():
         note = f'<p class="note">{e(d["note"])}</p>' if d.get("note") else ""
         np = lambda v: f'<span class="np">{e(v)}</span>' if v.startswith("Not published") else e(v)
         cards.append(f"""<li class="svc" data-types="{' '.join(d['types'])}" data-bpd="{int(d['bpd'])}">
-<h3>{e(d['name'])}</h3><p class="tags">{badge}{tags}</p>
+<p class="tags">{badge}{tags}</p><h3>{e(d['name'])}</h3>
 <dl>
 <dt>Who it's for</dt><dd>{e(d['who'])}</dd>
 <dt>How to get in</dt><dd>{e(d['referral'])}</dd>
@@ -173,15 +233,17 @@ def services():
 <h1>BPD and DBT services in Western Australia</h1>
 <p class="lede">Programs and supports in WA for people with BPD and their families. Each listing gives who it's for, how to get in, and the cost and wait if the service publishes them. Services that aren't BPD-specific, like alcohol and drug support and general mental health services, are included because people with BPD are often referred through them.</p>
 {crisis_box()}
+<div class="finder">
+<label class="skip" for="q">Search services</label>
+<div class="searchbox">{icon("search")}<input id="q" type="search" placeholder="Search by name, suburb or word (e.g. Fremantle, carer, free)" autocomplete="off"></div>
 <div class="filters" role="group" aria-label="Filter services">
 <span class="flabel">Show:</span>
 <button type="button" class="f" data-f="all" aria-pressed="true">All</button>
 <button type="button" class="f" data-f="bpd" aria-pressed="false">BPD / DBT specific</button>
 {filters}
 </div>
-<label class="skip" for="q">Search services</label>
-<input id="q" type="search" placeholder="Search by name, suburb or word (e.g. Fremantle, carer, free)" autocomplete="off">
-<p class="meta" id="count" aria-live="polite">{len(data)} services</p>
+</div>
+<p class="meta count" id="count" aria-live="polite">{len(data)} services</p>
 <p id="empty" hidden>No services match. Try another filter or clear the search.</p>
 <ul id="list" class="svcs">
 {chr(10).join(cards)}
@@ -288,6 +350,7 @@ def about():
     body = """
 <h1>About this guide</h1>
 <p class="lede">This guide is made by someone in Perth with lived experience of BPD, who found that working out where to go in WA was harder than it should be.</p>
+""" + crisis_box() + """
 <section class="placeholder"><h2>Why this exists</h2><p class="meta">[Coming soon: the founder's story, in their own words]</p></section>
 <h2>What this guide is, and isn't</h2>
 <ul>
