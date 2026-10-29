@@ -82,7 +82,7 @@ def layout(path, title, desc, body, noindex=False, scripts="", hero=None):
 <meta property="og:description" content="{e(desc)}">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_AU">
-<meta name="theme-color" content="#1f4f4b">
+<meta name="theme-color" content="#0b1f3a">
 <link rel="stylesheet" href="/assets/style.css">
 <script>document.documentElement.className='js'</script>
 </head>
