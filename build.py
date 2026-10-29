@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Builds the WA BPD & DBT Service Guide from one shared layout + data/services.json.
 Run: python3 build.py  (no dependencies). Set SITE_URL once a real address exists."""
-import json, html, pathlib, datetime
+import re, json, html, pathlib, datetime
 
 ROOT = pathlib.Path(__file__).parent
 SITE_URL = "https://thomasjohnston737.github.io/bpd-wa-guide"
@@ -80,7 +80,12 @@ def layout(path, title, desc, body, noindex=False, scripts=""):
 </html>
 """
 
+BASE_PATH = "/bpd-wa-guide"  # site lives in a subfolder on GitHub Pages
+
 def write(rel, text):
+    if rel.endswith(".html"):
+        text = re.sub(r'(href|src|action)="/(?!/)', lambda m: f'{m.group(1)}="{BASE_PATH}/', text)
+        text = text.replace(f'href="{BASE_PATH}{SITE_URL}', f'href="{SITE_URL}')
     p = ROOT / rel
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(text, encoding="utf-8")
