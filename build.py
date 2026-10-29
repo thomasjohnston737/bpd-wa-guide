@@ -4,7 +4,7 @@ Run: python3 build.py  (no dependencies). Set SITE_URL once a real address exist
 import json, html, pathlib, datetime
 
 ROOT = pathlib.Path(__file__).parent
-SITE_URL = "SITE_URL"  # PLACEHOLDER: replace with the real address before publishing
+SITE_URL = "https://thomasjohnston737.github.io/bpd-wa-guide"
 SITE_NAME = "WA BPD & DBT Service Guide"
 BUILT = "2026-10-29"
 CRISIS_CHECKED = "2026-10-28"

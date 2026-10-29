@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: SITE_URL/sitemap.xml
+Sitemap: https://thomasjohnston737.github.io/bpd-wa-guide/sitemap.xml
