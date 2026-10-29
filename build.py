@@ -6,12 +6,12 @@ import json, html, pathlib, datetime
 ROOT = pathlib.Path(__file__).parent
 SITE_URL = "SITE_URL"  # PLACEHOLDER: replace with the real address before publishing
 SITE_NAME = "WA BPD & DBT Service Guide"
-BUILT = "2026-10-28"
+BUILT = "2026-10-29"
 CRISIS_CHECKED = "2026-10-28"
 e = html.escape
 
 NAV = [("/", "Home"), ("/help-now/", "Need help now?"), ("/services/", "Services"),
-       ("/from-someone-whos-been-there/", "From someone who's been there"), ("/about/", "About")]
+       ("/getting-assessed/", "Getting assessed"), ("/from-someone-whos-been-there/", "From someone who's been there"), ("/about/", "About")]
 
 TYPES = [("public", "Public"), ("private", "Private"), ("community", "Community"), ("youth", "Youth"),
          ("telehealth", "Phone / online"), ("aod", "Alcohol & other drugs"),
@@ -103,6 +103,7 @@ def home(n):
 <div class="cards">
 <div class="card"><h3><a href="/services/">WA BPD &amp; DBT services</a></h3><p>{n} services you can filter: public, private, community, youth, phone/online, alcohol &amp; other drugs, and families &amp; carers.</p></div>
 <div class="card"><h3><a href="/help-now/">Need help now?</a></h3><p>Crisis and support lines for WA, open 24/7 or into the evening.</p></div>
+<div class="card"><h3><a href="/getting-assessed/">Getting assessed in WA</a></h3><p>The usual steps from GP to psychologist or psychiatrist, what a mental health treatment plan is, and what Medicare covers.</p></div>
 <div class="card"><h3><a href="/about/">About this guide</a></h3><p>Who makes it, how it's checked, and how to report a mistake.</p></div>
 </div>
 <h2>How the information is checked</h2>
@@ -202,6 +203,82 @@ def lived():
         "From someone who's been there | WA BPD & DBT Service Guide",
         "One person's lived experience of finding BPD support in WA. Not medical advice.", body, noindex=True))
 
+ASSESS_CHECKED = "2026-10-29"
+
+def assessed():
+    c = fmt_date(ASSESS_CHECKED)
+    src = lambda url, name: f'<p class="src">Source: <a href="{url}" rel="noopener">{name}</a> · Last checked {c}</p>'
+    HD_BPD = "https://www.healthdirect.gov.au/borderline-personality-disorder-bpd"
+    HD_MH = "https://www.healthdirect.gov.au/australian-mental-health-services"
+    SA = "https://www.servicesaustralia.gov.au/mental-health-care-and-medicare"
+    MBS = "https://www9.health.gov.au/mbs/fullDisplay.cfm?type=item&amp;q=291"
+    body = f"""
+<h1>Getting assessed in WA, step by step</h1>
+<p class="lede">How the usual path works in Australia if you think BPD might fit, or you want a proper assessment: from your GP, to a mental health treatment plan, to a psychologist or psychiatrist. This page explains the system only. It can't tell you whether you have BPD; only a qualified professional can assess that.</p>
+{crisis_box()}
+<div class="callout"><strong>Not medical advice.</strong> Everything below is taken from official government health pages, linked under each section. Rules and fees change, so check the source or ask your GP.</div>
+
+<h2>Step 1: See a GP</h2>
+<p>Healthdirect, the government's health information service, says the first step is to see your doctor. You don't need a referral to see a GP. Your GP can talk through what's going on, tell you about services near you, refer you to other mental health professionals and prepare a mental health treatment plan.</p>
+<p>Healthdirect also says you should be assessed by a mental health professional who has experience with BPD, such as a psychologist or psychiatrist, and that they make the diagnosis based on your symptoms and experiences.</p>
+<p><strong>A tip for the appointment:</strong> book a longer appointment if the clinic offers one, and say up front that you'd like to talk about your mental health. Writing a few notes beforehand can help if it's hard to say out loud.</p>
+{src(HD_BPD, "Healthdirect: Borderline personality disorder")}
+{src(HD_MH, "Healthdirect: Australian mental health services")}
+
+<h2>Step 2: A mental health treatment plan</h2>
+<p>If you have a diagnosed mental health disorder, your GP can write a mental health treatment plan with goals you agree on, treatment options, referrals, support services, and review and follow-up. Your information stays private unless you agree to share it.</p>
+<p>According to Services Australia, a plan lets you claim Medicare rebates for:</p>
+<ul>
+<li>up to <strong>10 individual and 10 group sessions</strong> each calendar year with an eligible mental health professional (such as a psychologist, occupational therapist or social worker)</li>
+<li>referrals for <strong>up to 6 sessions at a time</strong>, with your doctor deciding whether to refer you for more</li>
+<li>video telehealth sessions, which can also be claimed</li>
+</ul>
+<p>Health professionals set their own fees, so Medicare may only cover part of the cost. Ask when you book how much you'll pay and how much Medicare will cover. If they bulk bill, you pay nothing.</p>
+<p>A carer can sometimes attend up to 2 sessions a year as part of the person's plan, without the person there, if the person agrees and their health professional recommends it. These count towards the 10 individual sessions.</p>
+{src(SA, "Services Australia: Mental health care and Medicare")} 
+
+<h2>Step 3: Psychologist or psychiatrist</h2>
+<p>Healthdirect says you don't always need a referral to see a mental health professional, but you <strong>do need one to get a Medicare rebate</strong>. Seeing a psychiatrist in a public hospital or community health service usually costs nothing, but there's usually a wait.</p>
+<p>To find a psychiatrist, Services Australia points to Healthdirect's service finder and the <a href="https://www.yourhealthinmind.org/find-a-psychiatrist" rel="noopener">Your Health in Mind find-a-psychiatrist tool</a>. Our <a href="/services/">WA services list</a> covers public, private and community options.</p>
+{src(HD_MH, "Healthdirect: Australian mental health services")}
+{src(SA, "Services Australia: Mental health care and Medicare")}
+
+<h2>The one-off psychiatrist assessment (Medicare item 291)</h2>
+<p>Medicare has a specific item, number 291, for a one-off assessment by a consultant psychiatrist. In plain words, the official item description says:</p>
+<ul>
+<li>your GP (or a participating nurse practitioner) refers you for it</li>
+<li>it's a single appointment of more than 45 minutes, including a full diagnostic assessment</li>
+<li>within 2 weeks, the psychiatrist sends your GP a written report with the assessment and a 12-month management plan, so your GP can manage your ongoing care</li>
+<li>if appropriate, the psychiatrist explains it to you and gives you a copy (and your carer, if you agree)</li>
+<li>it can be claimed once in any 12 months; your GP can ask for one review of the plan within that year (item 293)</li>
+<li>a video version exists (item 92435)</li>
+</ul>
+<div class="tablewrap"><table>
+<thead><tr><th>Item 291</th><th>Amount</th></tr></thead>
+<tbody>
+<tr><td>Schedule fee</td><td>$549.90</td></tr>
+<tr><td>Medicare benefit (85%)</td><td>$467.45</td></tr>
+<tr><td>What the psychiatrist actually charges</td><td><span class="np">Not published (each psychiatrist sets their own fee; ask when booking)</span></td></tr>
+</tbody></table></div>
+<p class="meta">The schedule fee was last updated on 1 Jul 2026, according to MBS Online.</p>
+{src(MBS, "MBS Online: Item 291")}
+
+<h2>Free options while you sort it out</h2>
+<p>Medicare Mental Health Centres are free and confidential. You don't need an appointment, a referral, a Medicare card or Australian citizenship. You can call Medicare Mental Health on <a class="num" href="tel:1800595212">1800 595 212</a> to find your nearest centre. These centres aren't a crisis service.</p>
+{src(SA, "Services Australia: Mental health care and Medicare")}
+
+<h2>Questions you could ask</h2>
+<ul>
+<li>Your GP: "Can we do a mental health treatment plan today?" and "Who do you refer people to who has experience with BPD?"</li>
+<li>When booking a psychologist or psychiatrist: "What's your fee, what's the Medicare rebate and what's the gap?" and "How long is the wait?"</li>
+<li>For a psychiatrist: "Do you do item 291 assessments?"</li>
+</ul>
+<p class="meta">Whole page last checked {c} against the official sources linked above. These are suggested questions, not recommendations.</p>
+"""
+    write("getting-assessed/index.html", layout("/getting-assessed/",
+        "Getting assessed for BPD in WA, step by step: GP, treatment plan, Medicare | WA BPD & DBT Service Guide",
+        "Plain-English steps to getting a mental health assessment in WA: seeing a GP, mental health treatment plans (10 Medicare sessions), psychologists, psychiatrists and Medicare item 291. Official sources only.", body))
+
 def about():
     body = """
 <h1>About this guide</h1>
@@ -225,11 +302,11 @@ def notfound():
         '<h1>Page not found</h1><p>Try the <a href="/services/">services list</a> or <a href="/">home page</a>.</p>' + crisis_box(), noindex=True))
 
 def seo():
-    public = ["/", "/help-now/", "/services/", "/about/"]  # lived-experience page excluded until published
+    public = ["/", "/help-now/", "/services/", "/getting-assessed/", "/about/"]  # lived-experience page excluded until published
     urls = "".join(f"<url><loc>{SITE_URL}{p}</loc><lastmod>{BUILT}</lastmod></url>\n" for p in public)
     write("sitemap.xml", f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n')
     write("robots.txt", f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n")
 
 if __name__ == "__main__":
-    n = services(); home(n); help_now(); lived(); about(); notfound(); seo()
+    n = services(); home(n); help_now(); assessed(); lived(); about(); notfound(); seo()
     print(f"Built {SITE_NAME}: {n} services")

@@ -1,9 +1,9 @@
 # WA BPD & DBT Service Guide: roadmap (by MOGUL)
-Updated Wed 28 Oct 2026 (AWST, Perth). Rules for every page: no medical advice, diagnosis, health claims or testimonials. Every fact links its official source with a "last checked" date. If a service doesn't publish a detail, show "not published". Crisis box on every page.
+Updated Thu 29 Oct 2026 (AWST, Perth). Rules for every page: no medical advice, diagnosis, health claims or testimonials. Every fact links its official source with a "last checked" date. If a service doesn't publish a detail, show "not published". Crisis box on every page.
 
 ## Next pages, in priority order
-1. **From someone who's been there.** Tom's own words. The placeholder is built at `/from-someone-whos-been-there/` (noindex, not in sitemap). To publish it, add Tom's text, then remove `noindex=True` in `lived()`, add the path to `seo()`.
-2. **Getting assessed in WA, step by step.** GP → mental health treatment plan → psychologist or psychiatrist; MBS item 291 one-off psychiatric assessment. Quote Healthdirect and Services Australia only.
+1. **From someone who's been there.** _Waiting on Tom's own text; skipped by the routine until he sends it._ Tom's own words. The placeholder is built at `/from-someone-whos-been-there/` (noindex, not in sitemap). To publish it, add Tom's text, then remove `noindex=True` in `lived()`, add the path to `seo()`.
+2. ~~**Getting assessed in WA, step by step.**~~ **DONE 29 Oct 2026** at `/getting-assessed/` (sources: Healthdirect, Services Australia, MBS Online item 291; last checked 29 Oct 2026). GP → mental health treatment plan → psychologist or psychiatrist; MBS item 291 one-off psychiatric assessment. Quote Healthdirect and Services Australia only.
 3. **Costs and Medicare.** Better Access sessions, gap fees, bulk billing, Medicare Mental Health Centres (free). Official sources only; re-check after any MBS change.
 4. **Private hospital DBT and a health insurance checklist.** Psychiatric cover, waiting periods, needing an admitting psychiatrist, questions to ask your fund (Perth Clinic, Hollywood, Marian, Abbotsford). No recommendations.
 5. **Families and carers guide.** Free BPD carer groups state by state: MIFWA (WA), Spectrum and BPD Community (Vic), SA Health BPD Co, plus Family Connections, Project Air carer resources, Carer Gateway.
