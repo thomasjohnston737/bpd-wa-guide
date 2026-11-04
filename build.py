@@ -6,12 +6,12 @@ import re, json, html, pathlib, datetime
 ROOT = pathlib.Path(__file__).parent
 SITE_URL = "https://thomasjohnston737.github.io/bpd-wa-guide"
 SITE_NAME = "WA BPD & DBT Service Guide"
-BUILT = "2026-10-29"
+BUILT = "2026-11-04"
 CRISIS_CHECKED = "2026-10-28"
 e = html.escape
 
 NAV = [("/", "Home"), ("/help-now/", "Need help now?"), ("/services/", "Services"),
-       ("/getting-assessed/", "Getting assessed"), ("/from-someone-whos-been-there/", "From someone who's been there"), ("/about/", "About")]
+       ("/getting-assessed/", "Getting assessed"), ("/costs-and-medicare/", "Costs & Medicare"), ("/private-hospital-and-insurance/", "Private hospital & insurance"), ("/from-someone-whos-been-there/", "From someone who's been there"), ("/about/", "About")]
 
 TYPES = [("public", "Public"), ("private", "Private"), ("community", "Community"), ("youth", "Youth"),
          ("telehealth", "Phone / online"), ("aod", "Alcohol & other drugs"),
@@ -157,6 +157,8 @@ def home(n):
 {card("/services/", "list", "WA BPD &amp; DBT services", f"{n} services you can filter: public, private, community, youth, phone/online, alcohol &amp; other drugs, and families &amp; carers.")}
 {card("/help-now/", "phone", "Need help now?", "Crisis and support lines for WA, open 24/7 or into the evening.")}
 {card("/getting-assessed/", "steps", "Getting assessed in WA", "The usual steps from GP to psychologist or psychiatrist, what a mental health treatment plan is, and what Medicare covers.")}
+{card("/costs-and-medicare/", "info", "Costs and Medicare", "What Medicare pays for psychologist and psychiatrist sessions, what a gap fee is, the Medicare Safety Net, and free options.")}
+{card("/private-hospital-and-insurance/", "info", "Private hospital and health insurance", "How hospital cover works for private psychiatric care, the 2-month wait, the once-in-a-lifetime upgrade rule, and questions to ask your fund.")}
 {card("/about/", "info", "About this guide", "Who makes it, how it's checked, and how to report a mistake.")}
 </div>
 <div class="split">
@@ -346,6 +348,215 @@ def assessed():
         "Getting assessed for BPD in WA, step by step: GP, treatment plan, Medicare | WA BPD & DBT Service Guide",
         "Plain-English steps to getting a mental health assessment in WA: seeing a GP, mental health treatment plans (10 Medicare sessions), psychologists, psychiatrists and Medicare item 291. Official sources only.", body))
 
+COSTS_CHECKED = "2026-10-30"
+
+def costs():
+    c = fmt_date(COSTS_CHECKED)
+    src = lambda url, name: f'<p class="src">Source: <a href="{url}" rel="noopener">{name}</a> · Last checked {c}</p>'
+    SA = "https://www.servicesaustralia.gov.au/mental-health-care-and-medicare"
+    SN = "https://www.servicesaustralia.gov.au/what-are-medicare-safety-nets-thresholds"
+    M110 = "https://www9.health.gov.au/mbs/fullDisplay.cfm?type=item&amp;q=80110"
+    M010 = "https://www9.health.gov.au/mbs/fullDisplay.cfm?type=item&amp;q=80010"
+    M291 = "https://www9.health.gov.au/mbs/fullDisplay.cfm?type=item&amp;q=291"
+    MMH = "https://www.health.gov.au/our-work/medicare-mental-health-centres"
+    HD = "https://www.healthdirect.gov.au/australian-mental-health-services"
+    np = lambda t: f'<span class="np">{t}</span>'
+    body = f"""
+<h1>Costs and Medicare: what you'll pay</h1>
+<p class="lede">How Medicare helps with the cost of seeing a psychologist or psychiatrist in Australia, what a "gap fee" is, how the Medicare Safety Net works, and which options are free. Figures come straight from official government pages, linked under each section.</p>
+{crisis_box()}
+<div class="callout"><strong>Not financial or medical advice.</strong> Fees change, usually each 1 July and 1 January. Always ask the clinic what you'll pay before you book.</div>
+
+<h2>The short version</h2>
+<ul>
+<li>With a mental health treatment plan and a referral, Medicare pays part of the cost of up to <strong>10 individual and 10 group sessions</strong> each calendar year.</li>
+<li>Health professionals set their own fees. If they charge more than Medicare pays, you pay the difference (the <strong>gap</strong>). If they <strong>bulk bill</strong>, you pay nothing.</li>
+<li><strong>Medicare Mental Health Centres</strong> and the Medicare Mental Health phone line are free, with no referral needed.</li>
+<li>Public mental health services in hospitals and community clinics usually cost nothing, but there's usually a wait.</li>
+</ul>
+
+<h2>What Medicare pays per session</h2>
+<p>These are the official Medicare amounts for a standard individual session of at least 50 minutes, in person, with a referral. The <em>schedule fee</em> is the amount the government sets for the service; Medicare pays 85% of it. What the professional actually charges is up to them.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Who you see</th><th>Medicare item</th><th>Schedule fee</th><th>Medicare pays</th><th>What they charge</th></tr></thead>
+<tbody>
+<tr><td>Psychologist (registered), 50+ minutes</td><td><a href="{M110}" rel="noopener">80110</a></td><td>$119.45</td><td>$101.55</td><td>{np("Not published (each sets their own fee)")}</td></tr>
+<tr><td>Clinical psychologist, 50+ minutes</td><td><a href="{M010}" rel="noopener">80010</a></td><td>$175.30</td><td>$149.05</td><td>{np("Not published (each sets their own fee)")}</td></tr>
+<tr><td>Psychiatrist one-off assessment</td><td><a href="{M291}" rel="noopener">291</a></td><td>$549.90</td><td>$467.45</td><td>{np("Not published (each sets their own fee)")}</td></tr>
+</tbody></table></div>
+<p class="meta">MBS Online says these schedule fees were last updated on 1 Jul 2026. Shorter sessions, video and phone sessions, and group sessions have different item numbers and amounts. Our <a href="/getting-assessed/">Getting assessed</a> page explains item 291.</p>
+{src(M110, "MBS Online: Item 80110")}
+{src(M010, "MBS Online: Item 80010")}
+{src(M291, "MBS Online: Item 291")}
+
+<h2>Working out your gap</h2>
+<p>Your gap is the fee charged minus what Medicare pays. Here's how the sum works, using a <strong>made-up example fee</strong> (not a real price from any clinic):</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Example only</th><th>Amount</th></tr></thead>
+<tbody>
+<tr><td>Example fee a registered psychologist might charge</td><td>$200.00 (made-up)</td></tr>
+<tr><td>Medicare pays for item 80110</td><td>$101.55</td></tr>
+<tr><td>Your gap</td><td>$98.45</td></tr>
+</tbody></table></div>
+<p>If you pay the full fee on the day, you can claim the Medicare part back, or the clinic can claim it for you.</p>
+{src(SA, "Services Australia: Mental health care and Medicare")}
+
+<h2>The rules that catch people out</h2>
+<ul>
+<li><strong>The referral has to come from the right doctor.</strong> MBS Online says Medicare only pays if your referral comes from the GP practice where you're registered with MyMedicare, your usual GP (the practice that's given you most of your care over the past year, or will over the next year), or a psychiatrist or paediatrician.</li>
+<li><strong>The plan isn't the referral.</strong> A mental health treatment plan isn't the same thing as a referral; you need a written referral too.</li>
+<li><strong>Six at a time.</strong> The first referral covers up to 6 individual sessions. After that you need a review and a new referral for the rest of your 10.</li>
+<li><strong>Plans don't expire.</strong> You don't need a new plan every year, just a new referral when you've used the sessions you were referred for.</li>
+<li><strong>Medicare or your health fund, not both.</strong> You can't use private health insurance extras to top up the Medicare rebate on the same session. Once your Medicare sessions for the year are used up, you may be able to claim from your fund if you have psychology cover.</li>
+<li><strong>Not for public services.</strong> These Medicare items don't apply to services already funded by the state or Commonwealth, or if you're an admitted hospital patient.</li>
+<li><strong>Check how many you've used.</strong> You can see your care plan history in your Medicare online account through myGov, or call Medicare on <a class="num" href="tel:132011">132 011</a>.</li>
+</ul>
+{src(M110, "MBS Online: Item 80110 and Better Access explanatory notes")}
+
+<h2>The Medicare Safety Net</h2>
+<p>If your out-of-pocket costs for out-of-hospital services add up over the calendar year, you start getting more back once you pass a threshold. Gap fees for Medicare-eligible mental health sessions count towards it; costs for services Medicare doesn't cover don't.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>2026 threshold</th><th>Who it's for</th><th>Amount</th></tr></thead>
+<tbody>
+<tr><td>Original Medicare Safety Net</td><td>Everyone in Medicare</td><td>$594.40 in gap amounts</td></tr>
+<tr><td>Extended Medicare Safety Net: general</td><td>Everyone in Medicare</td><td>$2,699.10 out of pocket</td></tr>
+<tr><td>Extended Medicare Safety Net: concessional</td><td>Concession card holders and families getting Family Tax Benefit Part A</td><td>$861.20 out of pocket</td></tr>
+</tbody></table></div>
+<p>Once you pass the Extended threshold, Medicare pays back 80% of out-of-pocket costs, up to a cap for each item (for example, MBS Online lists a cap of $358.35 for item 80110). Only payments you've actually made count. Families and couples can register together to combine their costs.</p>
+{src(SN, "Services Australia: Medicare Safety Nets thresholds")}
+{src(M110, "MBS Online: Item 80110 and Better Access explanatory notes")}
+
+<h2>Free options</h2>
+<ul>
+<li><strong>Medicare Mental Health Centres</strong>: free for anyone in Australia. No appointment, referral or diagnosis needed; you can walk in. They're open extended hours. They aren't a crisis service.</li>
+<li><strong>Medicare Mental Health phone line</strong>: <a class="num" href="tel:1800595212">1800 595 212</a>, 8:30am to 5pm weekdays (excluding public holidays; the government page doesn't say which time zone). A trained professional can help you find free or low-cost local services.</li>
+<li><strong>Medicare Mental Health Check In</strong>: free online tools for people 16 and over, for mild mental health challenges, with telehealth support if needed.</li>
+<li><strong>Bulk-billing professionals</strong>: you pay nothing. Healthdirect's service finder can show which ones bulk bill.</li>
+<li><strong>Public mental health services</strong>: usually no cost, usually a wait. See our <a href="/services/">WA services list</a>.</li>
+<li><strong>Centrelink social workers</strong>: free short-term counselling and referrals. Ask for one through the Centrelink employment services line or at a service centre.</li>
+</ul>
+{src(MMH, "Department of Health, Disability and Ageing: Medicare Mental Health")}
+{src(SA, "Services Australia: Mental health care and Medicare")}
+{src(HD, "Healthdirect: Australian mental health services")}
+
+<h2>For carers</h2>
+<p>A carer or family member can attend up to 2 sessions a year as part of the person's plan, without the person there, if the person agrees and their health professional recommends it. These count towards the person's 10 sessions. Centrelink also has Carer Payment and Carer Supplement for people who give constant care.</p>
+{src(SA, "Services Australia: Mental health care and Medicare")}
+
+<h2>Questions to ask before you book</h2>
+<ul>
+<li>"What's your fee, how much will Medicare pay back, and what's my gap?"</li>
+<li>"Do you bulk bill anyone, for example concession card holders?"</li>
+<li>"Do you need a referral from my usual GP before the first session?"</li>
+<li>"Can I pay just the gap on the day, or do I pay the full fee and claim later?"</li>
+</ul>
+<p class="meta">Whole page last checked {c} against the official sources linked above. These are suggested questions, not recommendations.</p>
+"""
+    write("costs-and-medicare/index.html", layout("/costs-and-medicare/",
+        "Costs and Medicare for mental health care: rebates, gap fees, Safety Net | WA BPD & DBT Service Guide",
+        "What Medicare pays for psychologist and psychiatrist sessions (2026 amounts), how gap fees and the Medicare Safety Net work, Better Access referral rules, and free options. Official sources only.", body))
+
+PRIV_CHECKED = "2026-11-04"
+
+def private_hospital():
+    c = fmt_date(PRIV_CHECKED)
+    src = lambda url, name: f'<p class="src">Source: <a href="{url}" rel="noopener">{name}</a> · Last checked {c}</p>'
+    WP = "https://www.privatehealth.gov.au/health_insurance/howitworks/waiting_periods.htm"
+    EX = "https://www.health.gov.au/topics/private-health-insurance/what-private-health-insurance-covers/waiting-periods-and-exemptions"
+    TIERS = "https://www.privatehealth.gov.au/health_insurance/howitworks/producttiers.htm"
+    COMPARE = "https://www.privatehealth.gov.au/"
+    data = json.loads((ROOT / "data/services.json").read_text(encoding="utf-8"))
+    priv = sorted((d for d in data if "private" in d["types"]), key=lambda d: d["name"])
+    np = lambda v: f'<span class="np">{e(v)}</span>' if v.startswith("Not published") else e(v)
+    rows = "".join(f'<tr><td><a href="{e(d["url"])}" rel="noopener">{e(d["name"])}</a></td><td>{e(d["referral"])}</td><td>{np(d["cost"])}</td><td>{np(d["waitlist"])}</td><td>{fmt_date(d["checked"])}</td></tr>' for d in priv)
+    body = f"""
+<h1>Private hospital DBT and health insurance: a checklist</h1>
+<p class="lede">Some private hospitals in Perth run DBT day programs and inpatient care. Most people pay for these through private health insurance. This page explains, in plain words, how hospital cover works for psychiatric care, the waiting periods, and what to ask your fund and the hospital before you start. It doesn't recommend any fund, policy or hospital.</p>
+{crisis_box()}
+<div class="callout"><strong>Not financial or medical advice.</strong> Everything below comes from official government pages and each hospital's own website, linked under each section. Your policy documents and your fund have the final say on what you're covered for.</div>
+
+<h2>The short version</h2>
+<ul>
+<li>Private hospital psychiatric care is paid for under <strong>hospital cover</strong>, not extras.</li>
+<li>Every hospital policy (Basic, Bronze, Silver, Gold) has to include <strong>hospital psychiatric services</strong>, but only <strong>Gold</strong> must cover them fully. Basic, Bronze and Silver policies are allowed to cover them on a <strong>restricted</strong> basis, which can leave big out-of-pocket costs in a private hospital.</li>
+<li>The longest waiting period a fund can set for hospital psychiatric care is <strong>2 months</strong>, even if the condition is pre-existing.</li>
+<li>If you're on restricted psychiatric cover and have held hospital cover for 2 months, you can upgrade to higher psychiatric cover <strong>without another wait, once in your lifetime</strong>.</li>
+<li>Perth's private programs listed on this site all ask for a <strong>GP or specialist referral</strong>, and most need you to be under, or assessed by, one of their psychiatrists.</li>
+</ul>
+
+<h2>Restricted vs full cover for psychiatric care</h2>
+<p>Since April 2020 every hospital policy in Australia is sorted into one of four tiers: Gold, Silver, Bronze or Basic. The government's table of tiers says:</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Tier</th><th>Hospital psychiatric services</th></tr></thead>
+<tbody>
+<tr><td>Basic</td><td>Must be included, but can be restricted</td></tr>
+<tr><td>Bronze</td><td>Must be included, but can be restricted</td></tr>
+<tr><td>Silver</td><td>Must be included, but can be restricted</td></tr>
+<tr><td>Gold</td><td>Must be included, unrestricted</td></tr>
+</tbody></table></div>
+<p>A <strong>restricted</strong> benefit, in the government's words, means you're partly covered for hospital costs as a private patient in a <em>public</em> hospital, and "you may incur significant expenses in a private room or private hospital". Some funds sell "Plus" policies (like Bronze Plus or Silver Plus) that cover more than the minimum for their tier, so a Plus policy might include unrestricted psychiatric cover. The only way to know is to check the policy itself.</p>
+{src(TIERS, "privatehealth.gov.au (Commonwealth Ombudsman): Product tiers")}
+
+<h2>Waiting periods</h2>
+<p>The government sets the most a fund can make you wait before claiming hospital benefits after you join or upgrade:</p>
+<ul>
+<li><strong>2 months</strong> for psychiatric care, rehabilitation and palliative care, even for a pre-existing condition.</li>
+<li><strong>12 months</strong> for other pre-existing conditions and for pregnancy and birth.</li>
+<li><strong>2 months</strong> for everything else.</li>
+</ul>
+<p>Waiting periods for extras (like psychology on your extras cover) are set by each fund, not the government.</p>
+{src(WP, "privatehealth.gov.au (Commonwealth Ombudsman): Waiting periods")}
+
+<h2>The once-in-a-lifetime mental health upgrade</h2>
+<p>The Department of Health explains the rule like this:</p>
+<ul>
+<li>If you've finished a 2-month waiting period on a policy with limited psychiatric benefits, you can upgrade to higher psychiatric cover <strong>without serving another waiting period</strong>.</li>
+<li>You can do this at any time, but only <strong>once in your lifetime</strong>. Each person on a policy has their own once-only exemption.</li>
+<li>It covers hospital (or hospital-substitute) care for mental health and for drug and alcohol treatment.</li>
+<li>You can upgrade with your current fund or switch to any other fund, as long as you've held some hospital cover for 2 months with your current fund.</li>
+<li>If you upgrade within 5 days of going into hospital, you may be covered for treatment from before the upgrade. After 5 days, cover starts from the upgrade date.</li>
+<li>You only "use up" the exemption if you claim the higher benefits for mental health treatment within 2 months of upgrading.</li>
+<li>Your old excess or co-payment may still apply until the normal 2 months has passed, and the new, higher premium starts from the day you upgrade. You can drop back to lower cover later.</li>
+<li>If a hospital can't confirm your cover while you're upgrading, it may ask for an upfront fee; whether that's refunded is up to the hospital.</li>
+</ul>
+{src(EX, "Department of Health, Disability and Ageing: Waiting periods and exemptions")}
+
+<h2>Perth private programs on this site</h2>
+<p>This is what each hospital publishes about referral, cost and wait. For full details, see the <a href="/services/">services list</a> or the hospital's own page.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Program</th><th>How to get in</th><th>Cost</th><th>Wait</th><th>Last checked</th></tr></thead>
+<tbody>{rows}</tbody>
+</table></div>
+<p class="meta">Listed in alphabetical order. Being listed here isn't a recommendation.</p>
+
+<h2>Checklist: questions to ask your health fund</h2>
+<ul class="ticks">
+<li>{icon("check","ic tick")}"Is hospital psychiatric cover on my policy <strong>restricted or unrestricted</strong>?"</li>
+<li>{icon("check","ic tick")}"Have I served the 2-month waiting period for psychiatric care? When did it end?"</li>
+<li>{icon("check","ic tick")}"Have I already used my once-in-a-lifetime mental health upgrade exemption?"</li>
+<li>{icon("check","ic tick")}"Does my policy cover <strong>day programs</strong> (like a weekly DBT group) as well as overnight stays?"</li>
+<li>{icon("check","ic tick")}"Do you have an agreement with [hospital name]? What's my excess or co-payment there?"</li>
+<li>{icon("check","ic tick")}"What will I pay out of pocket for the hospital, and for the psychiatrist's fees?"</li>
+</ul>
+
+<h2>Checklist: questions to ask the hospital</h2>
+<ul class="ticks">
+<li>{icon("check","ic tick")}"Do I need a referral from my GP, or from a psychiatrist? Who is an admitting psychiatrist here?"</li>
+<li>{icon("check","ic tick")}"Is there an intake assessment, and is there a charge for it?"</li>
+<li>{icon("check","ic tick")}"How long is the wait for the next program?"</li>
+<li>{icon("check","ic tick")}"Can you check my cover with my fund and tell me my out-of-pocket costs before I start?"</li>
+<li>{icon("check","ic tick")}"What's the price if I pay for it myself (no insurance)?"</li>
+</ul>
+
+<h2>If you don't have private cover</h2>
+<p>Public mental health services and Medicare Mental Health Centres don't need private insurance. Our <a href="/costs-and-medicare/">Costs and Medicare</a> page covers what Medicare pays and the free options, and the <a href="/services/">services list</a> includes public and community programs. The hospitals above also list DVA, WorkCover or paying for yourself as options where they publish it.</p>
+<p>To compare policies, the government runs a free comparison site at <a href="{COMPARE}" rel="noopener">privatehealth.gov.au</a>. This guide doesn't compare or recommend funds and doesn't earn anything from them.</p>
+<p class="meta">Whole page last checked {c} against the official sources linked above. Hospital details come from each hospital's page on the date shown in the table. These are suggested questions, not recommendations.</p>
+"""
+    write("private-hospital-and-insurance/index.html", layout("/private-hospital-and-insurance/",
+        "Private hospital DBT and health insurance checklist for WA | WA BPD & DBT Service Guide",
+        "How private health insurance covers psychiatric care: restricted vs Gold cover, the 2-month waiting period, the once-in-a-lifetime mental health upgrade, Perth private DBT programs and questions to ask. Official sources only.", body))
+
 def about():
     body = """
 <h1>About this guide</h1>
@@ -370,11 +581,11 @@ def notfound():
         '<h1>Page not found</h1><p>Try the <a href="/services/">services list</a> or <a href="/">home page</a>.</p>' + crisis_box(), noindex=True))
 
 def seo():
-    public = ["/", "/help-now/", "/services/", "/getting-assessed/", "/about/"]  # lived-experience page excluded until published
+    public = ["/", "/help-now/", "/services/", "/getting-assessed/", "/costs-and-medicare/", "/private-hospital-and-insurance/", "/about/"]  # lived-experience page excluded until published
     urls = "".join(f"<url><loc>{SITE_URL}{p}</loc><lastmod>{BUILT}</lastmod></url>\n" for p in public)
     write("sitemap.xml", f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n')
     write("robots.txt", f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n")
 
 if __name__ == "__main__":
-    n = services(); home(n); help_now(); assessed(); lived(); about(); notfound(); seo()
+    n = services(); home(n); help_now(); assessed(); costs(); private_hospital(); lived(); about(); notfound(); seo()
     print(f"Built {SITE_NAME}: {n} services")
