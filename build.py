@@ -6,12 +6,12 @@ import re, json, html, pathlib, datetime
 ROOT = pathlib.Path(__file__).parent
 SITE_URL = "https://thomasjohnston737.github.io/bpd-wa-guide"
 SITE_NAME = "WA BPD & DBT Service Guide"
-BUILT = "2026-11-04"
+BUILT = "2026-11-05"
 CRISIS_CHECKED = "2026-10-28"
 e = html.escape
 
 NAV = [("/", "Home"), ("/help-now/", "Need help now?"), ("/services/", "Services"),
-       ("/getting-assessed/", "Getting assessed"), ("/costs-and-medicare/", "Costs & Medicare"), ("/private-hospital-and-insurance/", "Private hospital & insurance"), ("/from-someone-whos-been-there/", "From someone who's been there"), ("/about/", "About")]
+       ("/getting-assessed/", "Getting assessed"), ("/costs-and-medicare/", "Costs & Medicare"), ("/private-hospital-and-insurance/", "Private hospital & insurance"), ("/families-and-carers/", "Families & carers"), ("/from-someone-whos-been-there/", "From someone who's been there"), ("/about/", "About")]
 
 TYPES = [("public", "Public"), ("private", "Private"), ("community", "Community"), ("youth", "Youth"),
          ("telehealth", "Phone / online"), ("aod", "Alcohol & other drugs"),
@@ -159,6 +159,7 @@ def home(n):
 {card("/getting-assessed/", "steps", "Getting assessed in WA", "The usual steps from GP to psychologist or psychiatrist, what a mental health treatment plan is, and what Medicare covers.")}
 {card("/costs-and-medicare/", "info", "Costs and Medicare", "What Medicare pays for psychologist and psychiatrist sessions, what a gap fee is, the Medicare Safety Net, and free options.")}
 {card("/private-hospital-and-insurance/", "info", "Private hospital and health insurance", "How hospital cover works for private psychiatric care, the 2-month wait, the once-in-a-lifetime upgrade rule, and questions to ask your fund.")}
+{card("/families-and-carers/", "heart", "Families and carers", "Free BPD carer groups in WA and interstate, Family Connections, Project Air resources, Carer Gateway and WA carer helplines.")}
 {card("/about/", "info", "About this guide", "Who makes it, how it's checked, and how to report a mistake.")}
 </div>
 <div class="split">
@@ -557,6 +558,150 @@ def private_hospital():
         "Private hospital DBT and health insurance checklist for WA | WA BPD & DBT Service Guide",
         "How private health insurance covers psychiatric care: restricted vs Gold cover, the 2-month waiting period, the once-in-a-lifetime mental health upgrade, Perth private DBT programs and questions to ask. Official sources only.", body))
 
+FAMILIES_CHECKED = "2026-11-05"
+
+def families_and_carers():
+    c = fmt_date(FAMILIES_CHECKED)
+    src = lambda url, name: f'<p class="src">Source: <a href="{url}" rel="noopener">{name}</a> · Last checked {c}</p>'
+    data = json.loads((ROOT / "data/services.json").read_text(encoding="utf-8"))
+    carers = sorted((d for d in data if "carers" in d["types"]), key=lambda d: d["name"])
+    np = lambda v: f'<span class="np">{e(v)}</span>' if v.startswith("Not published") else e(v)
+    rows = "".join(
+        f'<tr><td><a href="{e(d["url"])}" rel="noopener">{e(d["name"])}</a></td>'
+        f'<td>{e(d["who"])}</td><td>{e(d["referral"])}</td><td>{np(d["cost"])}</td>'
+        f'<td>{np(d["waitlist"])}</td><td>{fmt_date(d["checked"])}</td></tr>'
+        for d in carers)
+    MIFWA = "https://www.mifwa.org.au/our-services/carer-support/social-support-groups/"
+    MIFWA_BPD = "https://www.mifwa.org.au/event-category/bpd-carer-support-group/"
+    SPEC = "https://www.spectrumbpd.com.au/education-training/education-for-families-friends-and-carers"
+    SPEC_GRP = "https://www.spectrumbpd.com.au/education-training/carer-support-group"
+    SPEC_DAY = "https://www.spectrumbpd.com.au/education-training/one-day-carer-workshop"
+    CV_BPD = "https://www.carersvictoria.org.au/carer-support-groups/bpd-community-family-friends-group/"
+    SA = "https://www.sahealth.sa.gov.au/wps/wcm/connect/public+content/sa+health+internet/services/mental+health+and+drug+and+alcohol+services/mental+health+services/statewide+specialist+services/borderline+personality+disorder+collaborative/supporting+people+with+borderline+personality+disorder/carers+families+partners+and+friends+supporting+people+with+borderline+personality+disorder"
+    FC_ABOUT = "https://bpdaustralia.org/about-family-connections/"
+    FC_PROG = "https://bpdaustralia.org/family-connections-program/"
+    FC_CLASS = "https://bpdaustralia.org/family-connections-classes/"
+    PA = "https://www.uow.edu.au/project-air/carer/"
+    CG = "https://www.carergateway.gov.au/about-us/what-carer-gateway"
+    CG_MH = "https://www.carergateway.gov.au/your-life-carer/your-life-around-caring/who-caring/caring-mental-illness"
+    MHC = "https://www.mhc.wa.gov.au/getting-help/helplines"
+    HM = "https://helpingminds.org.au/carer-support/"
+    body = f"""
+<h1>Families and carers guide</h1>
+<p class="lede">If you're a partner, parent, family member or friend supporting someone with BPD (or who may have BPD), there are free peer groups, courses and national carer services you can use. This page lists what each official site publishes about who it's for, how to join, cost and location. It doesn't recommend one option over another.</p>
+{crisis_box()}
+<div class="callout"><strong>Not medical advice.</strong> This is a directory of publicly listed carer supports. It doesn't diagnose, treat, or tell you what will work for your situation. Always check details with the service before you join.</div>
+
+<h2>The short version</h2>
+<ul>
+<li>In WA, <strong>MIFWA</strong> runs a free monthly BPD Carer Support Group (Zoom and West Leederville) plus other carer coffee and Grow groups.</li>
+<li><strong>Family Connections</strong> is a free 12-week course for adult carers of someone with BPD, run across Australia by NEABPD-Australia (waitlist).</li>
+<li><strong>Project Air</strong> (University of Wollongong) has a free online carer e-learning program and fact sheets.</li>
+<li><strong>Carer Gateway</strong> is the Australian Government's free service for unpaid carers (peer support, counselling, coaching, respite pathways).</li>
+<li>Victoria's <strong>Spectrum</strong> and South Australia's <strong>BPD Collaborative</strong> also publish free BPD carer workshops and groups (mainly for people in those states).</li>
+<li>WA carer helplines listed by the Mental Health Commission include CarersWA, Carer Gateway and Helping Minds.</li>
+</ul>
+
+<h2>WA listings already on this site</h2>
+<p>These are the services in our <a href="/services/">services list</a> tagged for families and carers. Filter that page by "Families &amp; carers" to see them with the other WA programs.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Service</th><th>Who it's for</th><th>How to get in</th><th>Cost</th><th>Wait / timing</th><th>Last checked</th></tr></thead>
+<tbody>{rows}</tbody>
+</table></div>
+<p class="meta">Listed in alphabetical order. Being listed here isn't a recommendation.</p>
+
+<h2>MIFWA (Mental Illness Fellowship of WA)</h2>
+<p>MIFWA's carer pages describe supports for carers, families and supporters of people with mental health challenges, including a BPD-specific group.</p>
+<ul>
+<li><strong>BPD Carer Support Group:</strong> free monthly peer-facilitated group for family, friends and carers supporting someone with BPD or similar traits. Runs 5.30pm–7.00pm on the second Wednesday of the month, alternating between in person in West Leederville and online via Zoom. Registration is essential (phone call with the Carer Support team). Contact <a href="tel:0892378900">(08) 9237 8900</a> or carersupport@mifwa.org.au. MIFWA says the group is not suitable for workers or for people with a lived experience of BPD unless they are also in an active caring role.</li>
+<li><strong>Other carer groups:</strong> coffee clubs across Perth metro, and Grow Groups for carers in Rockingham/Waikiki and Midland (no fee; Grow Groups say no RSVP and no referral needed).</li>
+<li><strong>One-to-one carer support and family education</strong> (including a Building a Future program) are also listed on MIFWA's carers page; details of cost and wait for those are <em>not published</em> on the pages checked below beyond the group listings.</li>
+</ul>
+{src(MIFWA_BPD, "MIFWA: BPD Carer Support Group")}
+{src(MIFWA, "MIFWA: Social and Support Groups for Carers")}
+
+<h2>Spectrum (Victoria)</h2>
+<p>Spectrum is Victoria's statewide personality disorder service (Eastern Health). It publishes education and support for families, friends, supporters and kin of someone with (or a suspected diagnosis of) BPD. Workshops are co-facilitated by a lived-experience carer and a clinician.</p>
+<ul>
+<li><strong>One-day carer workshop:</strong> in person at Spectrum's Richmond office, for unpaid/voluntary carers. Spectrum says it is not suited to people with lived experience of BPD unless they are actively caring for someone else with BPD, and is not intended for clinicians, mental health workers or paid carers.</li>
+<li><strong>Short online carer workshop:</strong> a 3-hour online version of the one-day workshop.</li>
+<li><strong>Carer Support Group:</strong> online, first Wednesday of each month (excluding January), 6:30pm–8:00pm AEST. <strong>Victoria residents only.</strong></li>
+<li><strong>Cost:</strong> not published on the Spectrum pages checked. Contact: <a href="tel:0384138750">(03) 8413 8750</a>, spectrumcarers@easternhealth.org.au.</li>
+</ul>
+{src(SPEC, "Spectrum: Education for families, friends and carers")}
+{src(SPEC_DAY, "Spectrum: One day Carer workshop")}
+{src(SPEC_GRP, "Spectrum: Carer Support Group")}
+
+<h2>BPD Community (Victoria)</h2>
+<p>Carers Victoria still publishes a listing for a <strong>BPD Community Family &amp; Friends Group</strong>: peer-led Zoom support on the third Tuesday of every month, 6.30pm–8.30pm, with BPD-informed psychoeducation. Cost: no. Contact listed as Barb Mullen, 0409 952 754, bpdcommunityvic@gmail.com. The listing links to bpdcommunity.com.au for more information.</p>
+<p><strong>Important check (5 Nov 2026):</strong> the organisation's own website at bpdcommunity.com.au was <em>unavailable</em> when we tried to open it. An earlier public notice on that site said BPD Community Ltd was closing operations as of 30 June 2025 and pointed people to Aviiara Health Psychology for ongoing clinical support. Whether the Family &amp; Friends Group is still running is <em>not published</em> on a working official page we could load. Confirm with the Carers Victoria contact details above, or Carers Victoria on 1800 514 845, before planning to attend.</p>
+{src(CV_BPD, "Carers Victoria: BPD Community Family &amp; Friends Group")}
+
+<h2>SA Health BPD Collaborative (South Australia)</h2>
+<p>SA Health's BPD Collaborative publishes a free carer peer program for unpaid carers, families, partners and friends of someone living with BPD. Workshops are open to people supporting someone living in SA.</p>
+<ul>
+<li><strong>Carer information sessions (2 hours):</strong> monthly online "Introduction to BPD" sessions covering understanding BPD, communication skills, self-care and links to supports.</li>
+<li><strong>Carer peer group (4 weeks):</strong> "Supporting Someone Recently Diagnosed with BPD" — online or face-to-face for unpaid supporters of people recently diagnosed or likely to have BPD. Topics listed: symptoms/treatments/recovery, carer role, the SA mental health system, self-care and a carer plan.</li>
+<li><strong>Family Connections (12 weeks):</strong> coordinated by NEABPD-Australia; metro Adelaide groups plus online for regional carers. Register on the NEABPD waitlist.</li>
+<li><strong>Cost:</strong> all workshops listed as free. Contact: <a href="tel:0874256500">(08) 7425 6500</a>, health.BPDservice@sa.gov.au. Future dates via their Eventbrite collection (linked from the SA Health page).</li>
+</ul>
+{src(SA, "SA Health: Carers, families, partners and friends supporting people with BPD")}
+
+<h2>Family Connections (NEABPD-Australia)</h2>
+<p>Family Connections is a free 12-week course that meets weekly for two hours. BPD Australia (NEABPD-Australia) says it provides education, skills training and support for people in a relationship with someone who has BPD. Groups are hosted in community settings and led by trained group leaders who are clinicians or family members. Content listed includes education on BPD, relationship mindfulness, emotion regulation, communication, validation and problem management skills.</p>
+<ul>
+<li><strong>Who:</strong> family members and carers of individuals with BPD. Not suitable for people under 18, or for loved ones with BPD / BPD traits / emotion dysregulation (the person with BPD does not attend as a participant).</li>
+<li><strong>Access:</strong> register interest for the waitlist first; when a group has spots, email the address published on the classes page. Places are filled in registration-reply order. Groups are listed as available across Australia; wait times are <em>not published</em> beyond a note that there has been a considerable waitlist.</li>
+<li><strong>Cost:</strong> free.</li>
+</ul>
+{src(FC_ABOUT, "BPD Australia: About Family Connections")}
+{src(FC_PROG, "BPD Australia: Family Connections Program")}
+{src(FC_CLASS, "BPD Australia: Family Connections Classes")}
+
+<h2>Project Air (University of Wollongong)</h2>
+<p>Project Air Strategy publishes free resources for families, partners and carers supporting someone with a personality disorder. It states clearly that it does <strong>not</strong> provide crisis services, support, counselling, advice, treatment or referrals — those come from health services.</p>
+<ul>
+<li><strong>Project Air Carers e-learning:</strong> free, available 24/7. Six modules (about 30–45 minutes each) covering the supportive role and wellbeing, personality disorder information, a carer plan, relationship patterns, communication, and crisis situations. A certificate of completion is provided.</li>
+<li><strong>Fact sheets and videos</strong> for families, partners and carers are linked from the same carer page.</li>
+</ul>
+{src(PA, "University of Wollongong — Project Air: I am a parent, carer or guardian")}
+
+<h2>Carer Gateway (Australian Government)</h2>
+<p>Carer Gateway is a free Australian Government program for unpaid carers of a family member or friend with disability, a medical condition, mental illness, or who is frail due to age. Services listed include in-person and online peer support groups, tailored support packages (including planned respite and transport), counselling, self-guided coaching, online skills courses, and emergency respite.</p>
+<ul>
+<li><strong>Phone:</strong> <a href="tel:1800422737">1800 422 737</a>, Monday to Friday, 8am–5pm (select option 1 to speak with your local service provider about registration and planning).</li>
+<li>A separate Carer Gateway page on caring for someone with mental illness also lists the Mental Health Carer Helpline on 1300 554 660, and points to state crisis lines (for WA: MHERL metro 1300 555 788 / country 1800 676 822 — note country number on that page; WA MHC also publishes Rurallink 1800 552 002 for after-hours country support).</li>
+<li>Carer Gateway is for carers generally — it is <strong>not</strong> BPD-specific.</li>
+</ul>
+{src(CG, "Carer Gateway: What is Carer Gateway?")}
+{src(CG_MH, "Carer Gateway: Caring for someone with mental illness")}
+
+<h2>Other WA carer contacts (Mental Health Commission)</h2>
+<p>The WA Mental Health Commission's helplines page lists these carer support lines (among others):</p>
+<ul>
+<li><strong>CarersWA</strong> general line: <a href="tel:1300227377">1300 227 377</a> (Mon–Fri 8.30am–4.30pm); counselling line <a href="tel:1800007332">1800 007 332</a> (same hours).</li>
+<li><strong>Carer Gateway:</strong> <a href="tel:1800422737">1800 422 737</a>.</li>
+<li><strong>Helping Minds:</strong> <a href="tel:1800811747">1800 811 747</a> (also (08) 9427 7100). Helping Minds publishes free confidential support for mental health carers living in WA (aged 7+), including counselling, peer support, education and Carer Gateway pathways. It says a formal diagnosis is not always required, and it is not a crisis service.</li>
+</ul>
+{src(MHC, "WA Mental Health Commission: Helplines")}
+{src(HM, "Helping Minds: Carer Support")}
+
+<h2>Questions you can ask a carer service</h2>
+<ul class="ticks">
+<li>{icon("check","ic tick")}"Who is this group or course for, and who shouldn't join?"</li>
+<li>{icon("check","ic tick")}"Is it free? Are there any other costs?"</li>
+<li>{icon("check","ic tick")}"Do I need a referral, or do I just register?"</li>
+<li>{icon("check","ic tick")}"Is it in person, online, or both? Which areas / states?"</li>
+<li>{icon("check","ic tick")}"How long is the wait, and how do I join a cancellation list if you have one?"</li>
+<li>{icon("check","ic tick")}"Is it peer-led, clinician-led, or both?"</li>
+</ul>
+
+<p class="meta">Whole page last checked {c} against the official sources linked above. Service rows in the WA table use each listing's own checked date from <a href="/services/">services.json</a>. These are directory notes, not recommendations.</p>
+"""
+    write("families-and-carers/index.html", layout("/families-and-carers/",
+        "Families and carers guide: BPD supports in WA and Australia | WA BPD & DBT Service Guide",
+        "Free BPD carer groups and courses: MIFWA in WA, Spectrum and BPD Community in Victoria, SA Health BPD Collaborative, Family Connections, Project Air e-learning, Carer Gateway and WA carer helplines. Official sources only.", body))
+
 def about():
     body = """
 <h1>About this guide</h1>
@@ -581,11 +726,11 @@ def notfound():
         '<h1>Page not found</h1><p>Try the <a href="/services/">services list</a> or <a href="/">home page</a>.</p>' + crisis_box(), noindex=True))
 
 def seo():
-    public = ["/", "/help-now/", "/services/", "/getting-assessed/", "/costs-and-medicare/", "/private-hospital-and-insurance/", "/about/"]  # lived-experience page excluded until published
+    public = ["/", "/help-now/", "/services/", "/getting-assessed/", "/costs-and-medicare/", "/private-hospital-and-insurance/", "/families-and-carers/", "/about/"]  # lived-experience page excluded until published
     urls = "".join(f"<url><loc>{SITE_URL}{p}</loc><lastmod>{BUILT}</lastmod></url>\n" for p in public)
     write("sitemap.xml", f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n')
     write("robots.txt", f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n")
 
 if __name__ == "__main__":
-    n = services(); home(n); help_now(); assessed(); costs(); private_hospital(); lived(); about(); notfound(); seo()
+    n = services(); home(n); help_now(); assessed(); costs(); private_hospital(); families_and_carers(); lived(); about(); notfound(); seo()
     print(f"Built {SITE_NAME}: {n} services")
