@@ -6,12 +6,12 @@ import re, json, html, pathlib, datetime
 ROOT = pathlib.Path(__file__).parent
 SITE_URL = "https://thomasjohnston737.github.io/bpd-wa-guide"
 SITE_NAME = "WA BPD & DBT Service Guide"
-BUILT = "2026-11-05"
+BUILT = "2026-11-06"
 CRISIS_CHECKED = "2026-10-28"
 e = html.escape
 
 NAV = [("/", "Home"), ("/help-now/", "Need help now?"), ("/services/", "Services"),
-       ("/getting-assessed/", "Getting assessed"), ("/costs-and-medicare/", "Costs & Medicare"), ("/private-hospital-and-insurance/", "Private hospital & insurance"), ("/families-and-carers/", "Families & carers"), ("/from-someone-whos-been-there/", "From someone who's been there"), ("/about/", "About")]
+       ("/getting-assessed/", "Getting assessed"), ("/costs-and-medicare/", "Costs & Medicare"), ("/private-hospital-and-insurance/", "Private hospital & insurance"), ("/families-and-carers/", "Families & carers"), ("/addiction-and-bpd/", "Addiction & BPD"), ("/from-someone-whos-been-there/", "From someone who's been there"), ("/about/", "About")]
 
 TYPES = [("public", "Public"), ("private", "Private"), ("community", "Community"), ("youth", "Youth"),
          ("telehealth", "Phone / online"), ("aod", "Alcohol & other drugs"),
@@ -160,6 +160,7 @@ def home(n):
 {card("/costs-and-medicare/", "info", "Costs and Medicare", "What Medicare pays for psychologist and psychiatrist sessions, what a gap fee is, the Medicare Safety Net, and free options.")}
 {card("/private-hospital-and-insurance/", "info", "Private hospital and health insurance", "How hospital cover works for private psychiatric care, the 2-month wait, the once-in-a-lifetime upgrade rule, and questions to ask your fund.")}
 {card("/families-and-carers/", "heart", "Families and carers", "Free BPD carer groups in WA and interstate, Family Connections, Project Air resources, Carer Gateway and WA carer helplines.")}
+{card("/addiction-and-bpd/", "phone", "Addiction and BPD support", "WA alcohol and other drug lines and services (ADSL, CADS, Next Step), how they list shared care with mental health, and private dual-diagnosis notes.")}
 {card("/about/", "info", "About this guide", "Who makes it, how it's checked, and how to report a mistake.")}
 </div>
 <div class="split">
@@ -702,6 +703,162 @@ def families_and_carers():
         "Families and carers guide: BPD supports in WA and Australia | WA BPD & DBT Service Guide",
         "Free BPD carer groups and courses: MIFWA in WA, Spectrum and BPD Community in Victoria, SA Health BPD Collaborative, Family Connections, Project Air e-learning, Carer Gateway and WA carer helplines. Official sources only.", body))
 
+
+ADDICTION_CHECKED = "2026-11-06"
+def addiction_and_bpd():
+    c = fmt_date(ADDICTION_CHECKED)
+    src = lambda url, name: f'<p class="src">Source: <a href="{url}" rel="noopener">{name}</a> · Last checked {c}</p>'
+    data = json.loads((ROOT / "data/services.json").read_text(encoding="utf-8"))
+    aod = sorted((d for d in data if "aod" in d["types"]), key=lambda d: d["name"])
+    np = lambda v: f'<span class="np">{e(v)}</span>' if v.startswith("Not published") else e(v)
+    rows = "".join(
+        f'<tr><td><a href="{e(d["url"])}" rel="noopener">{e(d["name"])}</a></td>'
+        f'<td>{e(d["who"])}</td><td>{e(d["referral"])}</td><td>{np(d["cost"])}</td>'
+        f'<td>{e(d["phone"]) if d["phone"] else "<span class=np>Not published</span>"}</td>'
+        f'<td>{fmt_date(d["checked"])}</td></tr>'
+        for d in aod)
+    ADSL = "https://admhss.mhc.wa.gov.au/get-help/alcohol-and-drug-support-line"
+    PFDS = "https://admhss.mhc.wa.gov.au/get-help/parent-and-family-drug-support-line"
+    HFY = "https://admhss.mhc.wa.gov.au/get-help/here-for-you-support-line"
+    MHC_SERV = "https://www.mhc.wa.gov.au/our-initiatives/our-services"
+    CADS = "https://www.mhc.wa.gov.au/getting-help/other-support-services/community-support-and-treatment-services/community-alcohol-and-drug-services"
+    RPH_NS = "https://rph.health.wa.gov.au/Services/Next-Step---Drug-and-Alcohol-Services"
+    MHC_NS_NEWS = "https://www.mhc.wa.gov.au/news-and-resources/latest-news/next-step-drug-and-alcohol-service-transitions-to-emhs"
+    RES = "https://www.mhc.wa.gov.au/getting-help/other-support-services/residential-treatment-services-for-alcohol-and-other-drugs"
+    ABB_HOSP = "https://abbotsfordprivate.com.au/our-hospital/"
+    ABB_PROG = "https://abbotsfordprivate.com.au/treatment-and-programs/"
+    MHC_NS_OUT_OLD = "https://www.mhc.wa.gov.au/about-us/our-services/next-step-drug-and-alcohol-services/outpatient-services-east-perth"
+    body = f"""
+<h1>Addiction and BPD support in WA</h1>
+<p class="lede">A plain map of Western Australian alcohol and other drug (AOD) helplines and treatment services, plus what official pages say about working alongside mental health services. This page lists published contacts, who each service is for, and how to get in. It does not explain causes, diagnose anything, or say what treatment works.</p>
+{crisis_box()}
+<div class="callout"><strong>Not medical advice.</strong> This is a directory of publicly listed AOD and related services. It doesn't diagnose, treat, or tell you what will work for your situation. Always check details with the service (or your GP) before you go.</div>
+
+<h2>The short version</h2>
+<ul>
+<li><strong>Alcohol and Drug Support Line (ADSL)</strong> is 24/7 for anyone in WA seeking help for their own or someone else's alcohol or other drug use: metro <a class="num" href="tel:0894425000">(08) 9442 5000</a>, country <a class="num" href="tel:1800198024">1800 198 024</a>.</li>
+<li><strong>Parent and Family Drug Support Line</strong> is 24/7 for people concerned about someone else's use: metro <a class="num" href="tel:0894425050">(08) 9442 5050</a>, country <a class="num" href="tel:1800653203">1800 653 203</a>.</li>
+<li><strong>Here For You</strong> covers mental health <em>and</em> alcohol/other drug concerns, 7am to 10pm daily: <a class="num" href="tel:1800437348">1800 437 348</a>.</li>
+<li><strong>Community Alcohol and Drug Services (CADS)</strong> are free community AOD services across metro and regional WA. You can self-refer. Official pages list counselling, withdrawal support, clinical psychology and <em>shared care with other services</em>.</li>
+<li><strong>Next Step</strong> (East Perth outpatient and inpatient withdrawal) is a public AOD service for adults 18+. Official pages list self-referral or referral from mental health services, GPs and others, and shared care with other services.</li>
+<li>The Mental Health Commission also publishes a page on voluntary residential / bed-based AOD treatment. Named private residential rehab providers are <em>not published</em> as a fixed list on that page — use My Services or ask CADS/ADSL.</li>
+<li>Among private hospitals already on this site, <strong>Abbotsford Private Hospital</strong> publishes dual diagnosis / comorbidity and addiction day programs. Other private DBT programs may have their own substance-use rules — ask them directly.</li>
+</ul>
+
+<h2>WA AOD listings already on this site</h2>
+<p>These are the services in our <a href="/services/">services list</a> tagged for alcohol and other drugs. Filter that page by "Alcohol &amp; other drugs" to see them with the other WA programs.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Service</th><th>Who it's for</th><th>How to get in</th><th>Cost</th><th>Phone</th><th>Last checked</th></tr></thead>
+<tbody>{rows}</tbody>
+</table></div>
+<p class="meta">Listed in alphabetical order. Being listed here isn't a recommendation.</p>
+
+<h2>Alcohol and Drug Support Line (ADSL)</h2>
+<p>ADMHSS (Mental Health Commission) says the Alcohol and Drug Support Line is for anyone across Western Australia seeking help for their own or someone else's alcohol and/or other drug use. It is a confidential 24/7 service. The page says it is <strong>not</strong> an emergency service — for emergencies dial <a class="num" href="tel:000">000</a>.</p>
+<ul>
+<li><strong>Metro:</strong> <a class="num" href="tel:0894425000">(08) 9442 5000</a></li>
+<li><strong>Country (toll free):</strong> <a class="num" href="tel:1800198024">1800 198 024</a></li>
+<li><strong>Also offered:</strong> email and live chat; one-to-one contact with a qualified counsellor; a free call-back service; options that can include a trained volunteer with lived experience.</li>
+<li>The page says callers may be waiting for face-to-face counselling, or may find face-to-face options hard to access. Counsellors can provide information about other local services, support groups and programs.</li>
+<li>Translating and Interpreting Service (TIS National): <a class="num" href="tel:131450">131 450</a>. National Relay Service for speech or hearing difficulties.</li>
+</ul>
+{src(ADSL, "ADMHSS: Alcohol and Drug Support Line")}
+{src(MHC_SERV, "WA Mental Health Commission: Our Services")}
+
+<h2>Parent and Family Drug Support Line</h2>
+<p>ADMHSS says this line is a confidential, non-judgemental telephone counselling, information and referral service for anyone concerned about someone else's alcohol and/or other drug use — a child of any age, partner, sibling, parent, or someone you support. It is <strong>not</strong> an emergency service.</p>
+<ul>
+<li><strong>Metro:</strong> <a class="num" href="tel:0894425050">(08) 9442 5050</a></li>
+<li><strong>Country (toll free):</strong> <a class="num" href="tel:1800653203">1800 653 203</a></li>
+<li><strong>Hours:</strong> phone line 24/7 with a qualified counsellor; from 8am to 10pm daily you can also ask for a trained volunteer (this may involve a call-back).</li>
+<li>The page also points to Family Support Groups and the Six STEPS program, plus referral information about local services.</li>
+</ul>
+{src(PFDS, "ADMHSS: Parent and Family Drug Support Line")}
+
+<h2>Here For You (mental health and AOD)</h2>
+<p>Here For You is listed by ADMHSS and the Mental Health Commission as a statewide confidential telephone or online support service for anyone in WA concerned about their own or another person's <strong>mental health, alcohol and/or other drug</strong> related challenges. It is <strong>not</strong> an emergency service.</p>
+<ul>
+<li><strong>Phone:</strong> <a class="num" href="tel:1800437348">1800 437 348</a> (toll free)</li>
+<li><strong>Hours:</strong> 7am to 10pm daily</li>
+<li><strong>Email</strong> listed on the MHC Our Services page: hereforyou@mhc.wa.gov.au</li>
+<li>ADMHSS says counsellors provide emotional support, information about AOD and mental health, coping and relapse-prevention strategies, and information about local services. Health professionals can also use it for system navigation.</li>
+</ul>
+{src(HFY, "ADMHSS: Here For You Support Line")}
+{src(MHC_SERV, "WA Mental Health Commission: Our Services")}
+
+<h2>Community Alcohol and Drug Services (CADS)</h2>
+<p>The Mental Health Commission says CADS provide free and confidential alcohol and other drug treatment and support for individuals and their families, court and police diversion services, and access to the Community Program for Opioid Pharmacotherapy. Services are for people aged 12 and over, their carers and families. CADS will also provide support for families and services working with people younger than 12.</p>
+<ul>
+<li><strong>Referral:</strong> self-refer by calling, emailing or attending your nearest CADS. External clinicians can use the MHC referral form on the CADS page.</li>
+<li><strong>Cost:</strong> free (as published on the MHC CADS page).</li>
+<li><strong>Metro model:</strong> Metropolitan CADS are provided by Next Step Drug and Alcohol Services in partnership with non-government AOD providers.</li>
+<li><strong>Services listed for metro CADS</strong> include assessment and referral; counselling, case management and support; opioid and alcohol pharmacotherapy; outpatient withdrawal (including home-based withdrawal via DAWN); medical reviews; clinical psychology; group programs; support to families; <strong>shared care with other services</strong>; diversion programs; outreach counselling; and community prevention activities.</li>
+<li><strong>Metro phones published on the MHC page</strong> (hours vary by site — check the source page): Fremantle (08) 9430 5966; Rockingham (08) 9550 9200; Mandurah (08) 9581 4010; Thornlie (08) 9267 2400; Armadale (08) 9399 5344; Joondalup (08) 9301 3200; Innaloo (08) 9246 6767; Midland (08) 9274 7055. Regional CADS (Wheatbelt, South West, Great Southern, Midwest, Goldfields, Pilbara, Kimberley and others) are listed on the same MHC page.</li>
+</ul>
+{src(CADS, "WA Mental Health Commission: Community Alcohol and Drug Services")}
+
+<h2>Next Step Drug and Alcohol Services</h2>
+<p>Next Step is a public AOD treatment service. An MHC news item (19 Dec 2024) says Next Step transitioned from the Mental Health Commission to East Metropolitan Health Service (EMHS); contact details and how people engage were stated not to change. MHC remains the commissioning agency via EMHS.</p>
+<p><strong>URL note (6 Nov 2026):</strong> the older MHC outpatient URL (<a href="{MHC_NS_OUT_OLD}" rel="noopener">outpatient-services-east-perth</a>) now redirects to the general MHC "Our Services" helplines page. Working official detail for outpatient and inpatient withdrawal is on the Royal Perth Hospital / EMHS Next Step page linked below.</p>
+<ul>
+<li><strong>Outpatient services (East Perth):</strong> 32 Moore Street, East Perth. Phone <a class="num" href="tel:0892191919">(08) 9219 1919</a>. RPH says free and confidential AOD treatment for people aged 18 and over. Younger people are directed to the Drug and Alcohol Youth Service.</li>
+<li><strong>Services listed</strong> include assessment and referral; case management, counselling and recovery planning; opiate and alcohol pharmacotherapy; outpatient withdrawal; medical reviews; clinical psychology; <strong>shared care with other services</strong>; diversion programs for people referred by the courts.</li>
+<li><strong>How to access:</strong> people can refer themselves, or be referred by other services including <strong>mental health</strong>, corrective services, child protection and general practitioners.</li>
+<li><strong>Inpatient Withdrawal Unit (East Perth):</strong> RPH describes a 17-bed unit with supervised medical withdrawal for clients 18+, staffed 24/7. Services are described as confidential and free. Referral pathways listed include Next Step outpatients, CADS, mental health services, GPs, hospitals and other healthcare providers. Wait times and exact eligibility criteria beyond what is on the page are <em>not published</em> here in full — ask the service.</li>
+<li>Next Step also works via the integrated metropolitan CADS locations (see CADS section).</li>
+</ul>
+{src(RPH_NS, "Royal Perth Hospital / EMHS: Next Step Drug and Alcohol Services")}
+{src(CADS, "WA Mental Health Commission: Community Alcohol and Drug Services (Next Step section)")}
+{src(MHC_NS_NEWS, "WA Mental Health Commission: Next Step transitions to EMHS (19 Dec 2024)")}
+
+<h2>Residential and bed-based AOD treatment (MHC overview)</h2>
+<p>The Mental Health Commission's community bed-based treatment page covers residential treatment (also called residential rehabilitation or therapeutic communities) and withdrawal management ("detox"). It states that all community bed-based AOD treatment services are <strong>voluntary and confidential</strong>.</p>
+<ul>
+<li><strong>Residential treatment:</strong> the page describes psychoeducation, structured psychological therapy, group therapy, individual counselling, skills development, recreational activities and peer support. Average length of stay is published as 12 to 16 weeks (some people stay more than 12 months). Most are free. You can self-refer, but you will need to be assessed for suitability.</li>
+<li><strong>Withdrawal services:</strong> confidential; most are free. Most accept self-referrals. Complex withdrawal requiring medical care may need a referral from a doctor or other health professional. The page points to the Next Step Inpatient Withdrawal Unit, local CADS, GPs, and the AOD support lines for advice.</li>
+<li><strong>Finding a named service:</strong> MHC points to the <strong>My Services online directory</strong> and to contacting your nearest CADS. A fixed public list of every private residential rehab provider is <em>not published</em> as a single table on the page we checked — so individual program names, fees and waits are shown here as <em>not published</em> unless a separate official page confirms them.</li>
+<li><strong>THASP</strong> (Transitional Housing and Support Program): free support around transitional accommodation after residential AOD treatment; residents pay for the accommodation (costs discussed with providers).</li>
+</ul>
+{src(RES, "WA Mental Health Commission: Community bed-based treatment services for alcohol and other drugs")}
+
+<h2>Private programs that publish addiction or dual-diagnosis work</h2>
+<p>This guide already lists four Perth private hospitals with DBT-related programs on the <a href="/services/">services</a> and <a href="/private-hospital-and-insurance/">private hospital</a> pages. Only include what those hospitals publish about addiction or dual diagnosis:</p>
+<ul>
+<li><strong>Abbotsford Private Hospital</strong> (West Leederville) states it is, in Western Australia, the only dedicated private inpatient hospital for the treatment of dual diagnosis and comorbidity. Its specialised services list includes dual diagnosis and comorbidity, addictions and substance use disorders, plus DBT inpatient and day programs. Day programs listed include <em>In Recovery</em> and <em>In Recovery – Addiction First Step</em>. Access is via GP/specialist referral to a psychiatrist with admitting rights. Costs: private health insurance, DVA, WorkCover or self-fund; out-of-pocket amounts are <em>not published</em> as fixed prices on the pages checked. Phone <a class="num" href="tel:0893811833">(08) 9381 1833</a>.</li>
+<li><strong>Other private DBT programs</strong> on this site (Perth Clinic, Marian Centre, Ramsay Clinic Hollywood) publish mental health / DBT program pages. Whether they also run dedicated addiction streams, and any substance-use eligibility rules, must be confirmed with each hospital — details beyond what each official page states are <em>not published</em> here. (For example, Perth Clinic's 12-week DBT page has previously listed current alcohol or other substance use issues among exclusions — confirm on their current page before applying.)</li>
+</ul>
+{src(ABB_HOSP, "Abbotsford Private Hospital: Our Hospital")}
+{src(ABB_PROG, "Abbotsford Private Hospital: Treatment and Programs")}
+
+<h2>How AOD and mental health services can connect (what official pages say)</h2>
+<p>Official WA pages do <strong>not</strong> publish a single "dual diagnosis pathway" flowchart for BPD specifically. What they do publish:</p>
+<ul>
+<li><strong>Here For You</strong> is explicitly for mental health <em>and/or</em> alcohol and other drug concerns on the same line.</li>
+<li><strong>CADS</strong> and <strong>Next Step outpatient</strong> pages list <strong>shared care with other services</strong> among the services provided.</li>
+<li><strong>Next Step</strong> (RPH) says people can be referred by <strong>mental health services</strong> (as well as self-referral, GPs and others).</li>
+<li><strong>Abbotsford</strong> publishes dual diagnosis / comorbidity as a specialty area in the private sector.</li>
+<li>ADMHSS pages for ADSL and the Parent and Family Drug Support Line state they are <strong>not</strong> emergency services; mental health crisis lines and 000 remain listed in the crisis box on this page.</li>
+</ul>
+<p>Anything beyond those published statements — including how well combined treatment works, or whether you "should" use AOD and mental health services together — is <em>not published</em> here and is outside the scope of this directory.</p>
+
+<h2>Questions you can ask an AOD or dual-diagnosis service</h2>
+<ul class="ticks">
+<li>{icon("check","ic tick")}"Who is this service for, and who shouldn't use it?"</li>
+<li>{icon("check","ic tick")}"Do I need a referral, or can I self-refer?"</li>
+<li>{icon("check","ic tick")}"Is it free? If not, what are the costs or insurance requirements?"</li>
+<li>{icon("check","ic tick")}"Do you offer shared care with mental health services, and how does that work?"</li>
+<li>{icon("check","ic tick")}"Is support in person, phone, online, or a mix?"</li>
+<li>{icon("check","ic tick")}"What is the wait, and can I join a cancellation list?"</li>
+<li>{icon("check","ic tick")}"If I also see a GP, psychologist or psychiatrist, how do you share information (with my consent)?"</li>
+</ul>
+
+<p class="meta">Whole page last checked {c} against the official sources linked above. Service rows in the WA table use each listing's own checked date from <a href="/services/">services.json</a>. These are directory notes, not recommendations.</p>
+"""
+    write("addiction-and-bpd/index.html", layout("/addiction-and-bpd/",
+        "Addiction and BPD support in WA: AOD lines, CADS, Next Step | WA BPD & DBT Service Guide",
+        "Plain map of WA alcohol and other drug services: Alcohol and Drug Support Line, Parent and Family Drug Support Line, Here For You, CADS, Next Step, residential AOD overview and private dual-diagnosis notes. Official sources only.", body))
+
+
 def about():
     body = """
 <h1>About this guide</h1>
@@ -726,11 +883,11 @@ def notfound():
         '<h1>Page not found</h1><p>Try the <a href="/services/">services list</a> or <a href="/">home page</a>.</p>' + crisis_box(), noindex=True))
 
 def seo():
-    public = ["/", "/help-now/", "/services/", "/getting-assessed/", "/costs-and-medicare/", "/private-hospital-and-insurance/", "/families-and-carers/", "/about/"]  # lived-experience page excluded until published
+    public = ["/", "/help-now/", "/services/", "/getting-assessed/", "/costs-and-medicare/", "/private-hospital-and-insurance/", "/families-and-carers/", "/addiction-and-bpd/", "/about/"]  # lived-experience page excluded until published
     urls = "".join(f"<url><loc>{SITE_URL}{p}</loc><lastmod>{BUILT}</lastmod></url>\n" for p in public)
     write("sitemap.xml", f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n')
     write("robots.txt", f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n")
 
 if __name__ == "__main__":
-    n = services(); home(n); help_now(); assessed(); costs(); private_hospital(); families_and_carers(); lived(); about(); notfound(); seo()
+    n = services(); home(n); help_now(); assessed(); costs(); private_hospital(); families_and_carers(); addiction_and_bpd(); lived(); about(); notfound(); seo()
     print(f"Built {SITE_NAME}: {n} services")
