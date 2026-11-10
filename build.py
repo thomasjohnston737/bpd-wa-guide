@@ -6,12 +6,12 @@ import re, json, html, pathlib, datetime
 ROOT = pathlib.Path(__file__).parent
 SITE_URL = "https://thomasjohnston737.github.io/bpd-wa-guide"
 SITE_NAME = "WA BPD & DBT Service Guide"
-BUILT = "2026-11-06"
+BUILT = "2026-11-10"
 CRISIS_CHECKED = "2026-10-28"
 e = html.escape
 
 NAV = [("/", "Home"), ("/help-now/", "Need help now?"), ("/services/", "Services"),
-       ("/getting-assessed/", "Getting assessed"), ("/costs-and-medicare/", "Costs & Medicare"), ("/private-hospital-and-insurance/", "Private hospital & insurance"), ("/families-and-carers/", "Families & carers"), ("/addiction-and-bpd/", "Addiction & BPD"), ("/from-someone-whos-been-there/", "From someone who's been there"), ("/about/", "About")]
+       ("/getting-assessed/", "Getting assessed"), ("/costs-and-medicare/", "Costs & Medicare"), ("/private-hospital-and-insurance/", "Private hospital & insurance"), ("/families-and-carers/", "Families & carers"), ("/addiction-and-bpd/", "Addiction & BPD"), ("/while-you-wait/", "While you wait"), ("/from-someone-whos-been-there/", "From someone who's been there"), ("/about/", "About")]
 
 TYPES = [("public", "Public"), ("private", "Private"), ("community", "Community"), ("youth", "Youth"),
          ("telehealth", "Phone / online"), ("aod", "Alcohol & other drugs"),
@@ -161,6 +161,7 @@ def home(n):
 {card("/private-hospital-and-insurance/", "info", "Private hospital and health insurance", "How hospital cover works for private psychiatric care, the 2-month wait, the once-in-a-lifetime upgrade rule, and questions to ask your fund.")}
 {card("/families-and-carers/", "heart", "Families and carers", "Free BPD carer groups in WA and interstate, Family Connections, Project Air resources, Carer Gateway and WA carer helplines.")}
 {card("/addiction-and-bpd/", "phone", "Addiction and BPD support", "WA alcohol and other drug lines and services (ADSL, CADS, Next Step), how they list shared care with mental health, and private dual-diagnosis notes.")}
+{card("/while-you-wait/", "heart", "While you wait", "Free lines and services you can use while on a waitlist: Medicare Mental Health 1800 595 212 and WA centres, Here For You, carer groups, and what services publish about waits and cancellation lists.")}
 {card("/about/", "info", "About this guide", "Who makes it, how it's checked, and how to report a mistake.")}
 </div>
 <div class="split">
@@ -859,6 +860,129 @@ def addiction_and_bpd():
         "Plain map of WA alcohol and other drug services: Alcohol and Drug Support Line, Parent and Family Drug Support Line, Here For You, CADS, Next Step, residential AOD overview and private dual-diagnosis notes. Official sources only.", body))
 
 
+WAIT_CHECKED = "2026-11-10"
+def while_you_wait():
+    c = fmt_date(WAIT_CHECKED)
+    src = lambda url, name: f'<p class="src">Source: <a href="{url}" rel="noopener">{name}</a> · Last checked {c}</p>'
+    data = json.loads((ROOT / "data/services.json").read_text(encoding="utf-8"))
+    progs = sorted((d for d in data if d.get("bpd") or "private" in d["types"] or "youth" in d["types"]), key=lambda d: d["name"])
+    np = lambda v: f'<span class="np">{e(v)}</span>' if v.startswith("Not published") else e(v)
+    rows = "".join(
+        f'<tr><td><a href="{e(d["url"])}" rel="noopener">{e(d["name"])}</a></td>'
+        f'<td>{np(d["waitlist"])}</td>'
+        f'<td>{e(d["phone"]) if d["phone"] else "<span class=np>Not published</span>"}</td>'
+        f'<td>{fmt_date(d["checked"])}</td></tr>'
+        for d in progs)
+    MMH = "https://www.medicarementalhealth.gov.au/"
+    WAPHA = "https://www.wapha.org.au/medicare-mental-health-centres/"
+    MHC = "https://www.mhc.wa.gov.au/getting-help/helplines"
+    HFY = "https://admhss.mhc.wa.gov.au/get-help/here-for-you-support-line"
+    LL = "https://www.lifeline.org.au/"
+    YARN = "https://www.13yarn.org.au/"
+    BB = "https://www.beyondblue.org.au/get-support/talk-to-a-counsellor"
+    HS = "https://headspace.org.au/explore-topics/for-young-people/waiting-for-counselling/"
+    MIFWA_BPD = "https://www.mifwa.org.au/event-category/bpd-carer-support-group/"
+    FC_CLASS = "https://bpdaustralia.org/family-connections-classes/"
+    YOUTH = "https://www.nmahs.health.wa.gov.au/Hospitals-and-Services/Mental-Health/Specialties/Youth"
+    DBTEEN = "https://lifelinewa.org.au/services/dbteen/"
+    body = f"""
+<h1>While you wait</h1>
+<p class="lede">Waitlists for DBT programs, psychologists and psychiatrists can be long. This page lists free lines and services that official sources say you can use without a referral, carer supports, and what services publish about waits and earlier appointments. It doesn't tell you what to do or what will work for you.</p>
+{crisis_box()}
+<div class="callout"><strong>Not medical advice.</strong> This is a directory of free supports and published waitlist details. It doesn't diagnose, treat, or replace the service you're waiting for. If things get worse while you wait, the crisis lines above are open now.</div>
+
+<h2>The short version</h2>
+<ul>
+<li><strong>Medicare Mental Health</strong> (formerly Head to Health) is a free phone line: <a class="num" href="tel:1800595212">1800 595 212</a>, weekdays 8:30am to 5pm (not public holidays). No GP referral, diagnosis or mental health treatment plan needed.</li>
+<li><strong>Medicare Mental Health Centres</strong>: WA has five (Armadale, Gosnells, Midland, Mirrabooka, Northam). Free and confidential for adults 18+, walk in or make an appointment. They are <em>not</em> a crisis service.</li>
+<li><strong>Here For You</strong> (WA, mental health and alcohol/other drugs): <a class="num" href="tel:1800437348">1800 437 348</a>, 7am to 10pm daily, with a WA-based counsellor.</li>
+<li><strong>Lifeline</strong> (<a class="num" href="tel:131114">13 11 14</a>, 24/7), <strong>Beyond Blue</strong> (<a class="num" href="tel:1300224636">1300 22 4636</a>, 24/7) and <strong>13YARN</strong> (<a class="num" href="tel:139276">13 92 76</a>, 24/7) are free national lines.</li>
+<li><strong>Carers</strong> can join MIFWA's free monthly BPD Carer Support Group, or register for the Family Connections waitlist.</li>
+<li><strong>Cancellation lists:</strong> none of the WA program pages we checked publish whether they keep one. You can ask the service when you're put on the waitlist.</li>
+</ul>
+
+<h2>Medicare Mental Health: phone line and centres</h2>
+<p>The Australian Government's Medicare Mental Health service says it is free, confidential and for everyone, and that you can get started without a GP referral, diagnosis or Mental Health Treatment Plan.</p>
+<ul>
+<li><strong>Phone:</strong> <a class="num" href="tel:1800595212">1800 595 212</a>. You speak with a trained professional and peer worker who can help you find support. Weekdays 8:30am to 5pm, excluding public holidays.</li>
+<li><strong>Online:</strong> the same site lists Medicare Mental Health Check In (digital tools, with telehealth if you need extra help) and Kids Hubs for families with children up to 12.</li>
+</ul>
+{src(MMH, "Medicare Mental Health (Australian Government)")}
+<p>WA Primary Health Alliance (WAPHA) lists the five WA Medicare Mental Health Centres. Services are free and confidential for people aged 18 and over, and no referral or appointment is needed. Mental health professionals and people with lived experience work together at each centre. WAPHA says the centres will "soon" also offer free psychologist and psychiatrist access (in person or telehealth); a start date is <em>not published</em>.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Centre</th><th>Address</th><th>Hours (as published)</th></tr></thead>
+<tbody>
+<tr><td>Armadale</td><td>65A Church Avenue, Armadale WA 6112</td><td>9am to 8pm</td></tr>
+<tr><td>Gosnells</td><td>Corfield Medical Centre, 288 Corfield Street, Gosnells WA 6110</td><td>9am to 5pm</td></tr>
+<tr><td>Midland</td><td>23 Old Great Northern Highway, Midland WA 6056</td><td>9am to 8pm</td></tr>
+<tr><td>Mirrabooka</td><td>Ground floor, Eastbrooke building (behind Dome), 3/8 Sudbury Road, Mirrabooka WA 6061</td><td>9am to 5pm</td></tr>
+<tr><td>Northam</td><td>133 Fitzgerald Street, Northam</td><td>8.30am to 4.30pm</td></tr>
+</tbody>
+</table></div>
+<p class="meta">Days of opening are <em>not published</em> on the WAPHA page. Call 1800 595 212 to check before you go.</p>
+{src(WAPHA, "WA Primary Health Alliance: Medicare Mental Health Centres")}
+
+<h2>Free phone and online lines</h2>
+<ul>
+<li><strong>Here For You Support Line</strong> (WA Mental Health Commission): for anyone in WA seeking help with their own or someone else's mental health, alcohol and/or other drug challenges. <a class="num" href="tel:1800437348">1800 437 348</a> (toll free), 7am to 10pm daily. One-to-one phone or online contact with a qualified counsellor based in WA, and guidance on local services. Not an emergency service. Email hereforyou@mhc.wa.gov.au or Live Chat for people with speech or hearing difficulties.</li>
+<li><strong>Lifeline:</strong> call <a class="num" href="tel:131114">13 11 14</a>, text 0477 13 11 14, or chat online. Lifeline says it provides 24-hour crisis support.</li>
+<li><strong>Beyond Blue:</strong> free phone counselling on <a class="num" href="tel:1300224636">1300 22 4636</a> and webchat, both 24/7. Beyond Blue says it can also help you find mental health services if you need extra support.</li>
+<li><strong>13YARN:</strong> <a class="num" href="tel:139276">13 92 76</a>, 24/7, with Aboriginal and Torres Strait Islander Crisis Supporters. Text 0447 13 92 76 or type online, 4pm to midnight, 7 days.</li>
+<li><strong>Other lines</strong> listed by the WA Mental Health Commission include Suicide Call Back Service (1300 659 467), MensLine Australia (1300 789 978), QLife (1800 184 527), Butterfly Foundation (1800 334 673), Healthdirect (1800 022 222) and, for 12 to 25-year-olds, headspace (1800 650 890, 3pm to 10pm) and Kids Helpline (1800 551 800).</li>
+</ul>
+{src(HFY, "ADMHSS (WA Mental Health Commission): Here For You Support Line")}
+{src(LL, "Lifeline Australia")}
+{src(BB, "Beyond Blue: Talk to a counsellor")}
+{src(YARN, "13YARN")}
+{src(MHC, "WA Mental Health Commission: Helplines")}
+
+<h2>If you're a family member or carer</h2>
+<ul>
+<li><strong>MIFWA BPD Carer Support Group:</strong> monthly, 5:30pm to 7pm, alternating between in person in West Leederville and online via Zoom. Upcoming dates listed: 11 Nov 2026 and 9 Dec 2026 (online). Contact MIFWA on <a class="num" href="tel:0892378900">(08) 9237 8900</a>, Monday to Friday 8.30am to 4.30pm. See our <a href="/families-and-carers/">families and carers page</a> for registration details and other groups.</li>
+<li><strong>Family Connections</strong> (NEABPD-Australia): free 12-week classes. You register your interest first to go on the waitlist, which is a requirement to join. When a group listed on their page has spots, you email them, and places are filled in the order replies arrive from people already registered. Not suitable for under-18s, or for the person with BPD. Wait times are <em>not published</em>.</li>
+<li><strong>Carer lines</strong> listed by the WA Mental Health Commission: CarersWA 1300 227 377 (general) and 1800 007 332 (counselling), both Mon to Fri 8.30am to 4.30pm; Carer Gateway 1800 422 737; Helping Minds 1800 811 747.</li>
+</ul>
+{src(MIFWA_BPD, "MIFWA: BPD Carer Support Group")}
+{src(FC_CLASS, "BPD Australia: Family Connections Classes")}
+{src(MHC, "WA Mental Health Commission: Helplines")}
+
+<h2>Waits, earlier appointments and cancellation lists</h2>
+<p>headspace's page on waiting for counselling says waiting periods vary with things like where you live and how many people are seeking support, and suggests checking with the service for a rough estimate. It also says that if things get harder while you wait, you can contact the service, which might be able to offer an earlier appointment, point you to other resources or give you support in the meantime.</p>
+{src(HS, "headspace: What to do while you wait for counselling")}
+<p>What the WA services on this site publish about waits:</p>
+<ul>
+<li><strong>Youth Axis and YouthLink</strong> (NMHS, ages 16 to 24 / 13 to 24) share one triage line: <a class="num" href="tel:1300362569">1300 362 569</a>. A current wait time is <em>not published</em> on the page.</li>
+<li><strong>Lifeline WA DBTeen</strong> (14 to 18 with a carer) runs by semester. Referrals for Semester 2 2026 are closed; referrals are open for Semester 1 2027, with groups starting from the second week of February 2027. You can only join at the start of a 12-week program.</li>
+<li><strong>Cancellation lists:</strong> whether a service keeps one is <em>not published</em> on any of the WA DBT and BPD program pages we checked today (NMHS, Perth Clinic, Ramsay Clinic Hollywood, Marian Centre, Abbotsford, NMHS Youth, Lifeline WA DBTeen). Ask the service directly.</li>
+</ul>
+{src(YOUTH, "North Metropolitan Health Service: Youth Mental Health")}
+{src(DBTEEN, "Lifeline WA: DBTeen Groups")}
+
+<h2>Published waits for programs on this site</h2>
+<p>From our <a href="/services/">services list</a>: BPD-specific, private and youth programs, with what each one publishes about its wait. Each row uses its own last-checked date.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Service</th><th>Wait (as published)</th><th>Phone</th><th>Last checked</th></tr></thead>
+<tbody>{rows}</tbody>
+</table></div>
+<p class="meta">Listed in alphabetical order. Being listed here isn't a recommendation.</p>
+
+<h2>Questions you can ask when you go on a waitlist</h2>
+<ul class="ticks">
+<li>{icon("check","ic tick")}"Roughly how long is the wait right now?"</li>
+<li>{icon("check","ic tick")}"Do you keep a cancellation list, and can I go on it?"</li>
+<li>{icon("check","ic tick")}"How will you contact me, and what happens if I miss the call?"</li>
+<li>{icon("check","ic tick")}"Do I need to check in to stay on the list?"</li>
+<li>{icon("check","ic tick")}"Is there any support from you while I wait?"</li>
+<li>{icon("check","ic tick")}"Who should I call if things get worse before my appointment?"</li>
+</ul>
+
+<p class="meta">Whole page last checked {c} against the official sources linked above. Service rows in the waits table use each listing's own checked date from <a href="/services/">services.json</a>. These are directory notes, not recommendations.</p>
+"""
+    write("while-you-wait/index.html", layout("/while-you-wait/",
+        "While you wait: free mental health support during BPD and DBT waitlists in WA | WA BPD & DBT Service Guide",
+        "Free lines and services you can use while waiting for a WA DBT program, psychologist or psychiatrist: Medicare Mental Health 1800 595 212 and WA centres, Here For You, Lifeline, Beyond Blue, 13YARN, carer groups, and what services publish about waits and cancellation lists.", body))
+
+
 def about():
     body = """
 <h1>About this guide</h1>
@@ -883,11 +1007,11 @@ def notfound():
         '<h1>Page not found</h1><p>Try the <a href="/services/">services list</a> or <a href="/">home page</a>.</p>' + crisis_box(), noindex=True))
 
 def seo():
-    public = ["/", "/help-now/", "/services/", "/getting-assessed/", "/costs-and-medicare/", "/private-hospital-and-insurance/", "/families-and-carers/", "/addiction-and-bpd/", "/about/"]  # lived-experience page excluded until published
+    public = ["/", "/help-now/", "/services/", "/getting-assessed/", "/costs-and-medicare/", "/private-hospital-and-insurance/", "/families-and-carers/", "/addiction-and-bpd/", "/while-you-wait/", "/about/"]  # lived-experience page excluded until published
     urls = "".join(f"<url><loc>{SITE_URL}{p}</loc><lastmod>{BUILT}</lastmod></url>\n" for p in public)
     write("sitemap.xml", f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n')
     write("robots.txt", f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n")
 
 if __name__ == "__main__":
-    n = services(); home(n); help_now(); assessed(); costs(); private_hospital(); families_and_carers(); addiction_and_bpd(); lived(); about(); notfound(); seo()
+    n = services(); home(n); help_now(); assessed(); costs(); private_hospital(); families_and_carers(); addiction_and_bpd(); while_you_wait(); lived(); about(); notfound(); seo()
     print(f"Built {SITE_NAME}: {n} services")
